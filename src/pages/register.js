@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 export default function Register() {
-    const [username, setUsername] = useState('');
+    const [displayName, setDisplayName] = useState('');
     const [userId, setUserId] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -17,7 +17,7 @@ export default function Register() {
             const response = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, userId, password }),
+                body: JSON.stringify({ displayName, userId, password }),
             });
 
             if (response.ok) {
@@ -43,18 +43,18 @@ export default function Register() {
                     <input type="hidden" name="remember" defaultValue="true" />
                     <div className="rounded-md shadow-sm -space-y-px">
                         <div>
-                            <label htmlFor="username" className="sr-only">
+                            <label htmlFor="displayName" className="sr-only">
                                 ユーザー名
                             </label>
                             <input
-                                id="username"
-                                name="username"
+                                id="displayName"
+                                name="displayName"
                                 type="text"
                                 required
                                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                 placeholder="ユーザー名"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                value={displayName}
+                                onChange={(e) => setDisplayName(e.target.value)}
                             />
                         </div>
                         <div>
@@ -89,6 +89,12 @@ export default function Register() {
                         </div>
                     </div>
 
+                    {error && (
+                        <div className="text-red-500 text-center mt-2">
+                            {error}
+                        </div>
+                    )}
+
                     <div>
                         <button
                             type="submit"
@@ -106,14 +112,4 @@ export default function Register() {
             </div>
         </div>
     );
-
-    // エラーメッセージの表示を追加
-    {
-        error && (
-            <div className="text-red-500 text-center mt-2">
-                {error}
-            </div>
-        )
-    }
 }
-

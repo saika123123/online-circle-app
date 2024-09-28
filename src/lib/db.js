@@ -5,6 +5,7 @@ const pool = mysql.createPool({
   user: 'root',
   password: 'renkon',
   database: 'online_circle_service',
+  charset: 'utf8mb4',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0

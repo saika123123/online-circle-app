@@ -65,12 +65,20 @@ export default function JoinCircle() {
                                         <h3 className="font-semibold">{circle.name}</h3>
                                         <p>テーマ: {circle.theme}</p>
                                         <p>ジャンル: {circle.genre}</p>
-                                        <button
-                                            onClick={() => handleJoin(circle.id)}
-                                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                        >
-                                            参加する
-                                        </button>
+                                        <div className="mt-2 space-x-2">
+                                            <button
+                                                onClick={() => handleJoin(circle.id)}
+                                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                            >
+                                                参加する
+                                            </button>
+                                            <button
+                                                onClick={() => router.push(`/circle/${circle.id}`)}
+                                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                                            >
+                                                詳細を見る
+                                            </button>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>

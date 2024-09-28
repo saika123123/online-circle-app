@@ -179,7 +179,7 @@ export default function GatheringDetail() {
                         <ul className="space-y-4 text-2xl">
                             {participants.map((participant) => (
                                 <li key={participant.id} className="flex items-center justify-between bg-gray-100 p-4 rounded-lg">
-                                    <span>{participant.username}</span>
+                                    <span>{participant.display_name}</span>
                                     <span className={`px-4 py-2 rounded-full ${participant.status === 'accepted' ? 'bg-green-200 text-green-800' :
                                         participant.status === 'declined' ? 'bg-red-200 text-red-800' :
                                             'bg-yellow-200 text-yellow-800'

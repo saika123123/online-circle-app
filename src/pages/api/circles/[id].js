@@ -11,12 +11,13 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
         try {
+            // サークル情報の取得
             const [circles] = await pool.query(
                 `SELECT c.*, 
                 CASE WHEN cm.user_id IS NOT NULL OR c.creator_id = ? THEN true ELSE false END as is_member
-         FROM circles c
-         LEFT JOIN circle_members cm ON c.id = cm.circle_id AND cm.user_id = ?
-         WHERE c.id = ?`,
+                FROM circles c
+                LEFT JOIN circle_members cm ON c.id = cm.circle_id AND cm.user_id = ?
+                WHERE c.id = ?`,
                 [user.userId, user.userId, id]
             );
 
@@ -24,7 +25,18 @@ export default async function handler(req, res) {
                 return res.status(404).json({ message: 'サークルが見つかりません' });
             }
 
-            res.status(200).json({ circle: circles[0] });
+            const circle = circles[0];
+
+            // サークルメンバーの取得
+            const [members] = await pool.query(
+                `SELECT u.id, u.display_name
+                FROM circle_members cm
+                JOIN users u ON cm.user_id = u.id
+                WHERE cm.circle_id = ?`,
+                [id]
+            );
+
+            res.status(200).json({ circle, members });
         } catch (error) {
             console.error('Error in circle detail API:', error);
             res.status(500).json({ message: 'サーバーエラーが発生しました' });

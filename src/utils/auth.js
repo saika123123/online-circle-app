@@ -11,6 +11,7 @@ export default function verifyToken(req) {
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch (error) {
+    console.error('Token verification error:', error);
     return null;
   }
 }

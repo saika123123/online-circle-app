@@ -6,12 +6,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { username, userId, password } = req.body;
+  const { displayName, userId, password } = req.body;
 
   try {
     // ユーザーIDの重複チェック
     const [existingUsers] = await pool.query(
-      'SELECT * FROM users WHERE username = ?',
+      'SELECT * FROM users WHERE user_id = ?',
       [userId]
     );
 
@@ -24,8 +24,8 @@ export default async function handler(req, res) {
 
     // ユーザーの作成
     const [result] = await pool.query(
-      'INSERT INTO users (username, password) VALUES (?, ?)',
-      [userId, hashedPassword]
+      'INSERT INTO users (display_name, user_id, password) VALUES (?, ?, ?)',
+      [displayName, userId, hashedPassword]
     );
 
     res.status(201).json({ message: 'ユーザーが正常に登録されました', userId: result.insertId });

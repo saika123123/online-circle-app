@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 
 export default function CircleDetail() {
     const [circle, setCircle] = useState(null);
+    const [members, setMembers] = useState([]);
     const [error, setError] = useState('');
+    const [isMember, setIsMember] = useState(false);
     const router = useRouter();
     const { id } = router.query;
 
@@ -24,11 +26,34 @@ export default function CircleDetail() {
             if (response.ok) {
                 const data = await response.json();
                 setCircle(data.circle);
+                setMembers(data.members);
+                setIsMember(data.circle.is_member);
             } else {
                 setError('サークル情報の取得に失敗しました');
             }
         } catch (error) {
             setError('サークル情報の取得中にエラーが発生しました');
+        }
+    };
+
+    const handleJoin = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/api/circles/${id}/join`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                setIsMember(true);
+                fetchCircleDetail(); // メンバー情報を更新
+            } else {
+                const data = await response.json();
+                setError(data.message);
+            }
+        } catch (error) {
+            setError('サークル参加中にエラーが発生しました');
         }
     };
 
@@ -46,11 +71,28 @@ export default function CircleDetail() {
                         <p>ジャンル: {circle.genre}</p>
                         <p>対象性別: {circle.gender}</p>
                         <p>詳細: {circle.details}</p>
+
+                        <h3 className="text-xl font-semibold mt-6 mb-2">メンバー一覧</h3>
+                        <ul className="list-disc pl-5">
+                            {members.map((member) => (
+                                <li key={member.id}>{member.display_name}</li>
+                            ))}
+                        </ul>
+
+                        {!isMember && (
+                            <button
+                                onClick={handleJoin}
+                                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                                サークルに参加する
+                            </button>
+                        )}
+
                         <button
-                            onClick={() => router.push('/check-circles')}
-                            className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                            onClick={() => router.back()}
+                            className="mt-4 ml-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                         >
-                            サークル一覧に戻る
+                            戻る
                         </button>
                     </div>
                 </div>

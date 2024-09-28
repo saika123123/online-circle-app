@@ -634,7 +634,7 @@ export default async function handler(req, res) {
   try {
     // ユーザーの検索
     const [users] = await pool.query(
-      'SELECT * FROM users WHERE username = ?',
+      'SELECT * FROM users WHERE user_id = ?',
       [userId]
     );
 
@@ -653,12 +653,21 @@ export default async function handler(req, res) {
 
     // JWTトークンの生成
     const token = jwt.sign(
-      { userId: user.id, username: user.username },
+      {
+        userId: user.id,
+        user_id: user.user_id,
+        displayName: Buffer.from(user.display_name).toString('base64')
+      },
       JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-    res.status(200).json({ token, userId: user.id, username: user.username });
+    res.status(200).json({
+      token,
+      userId: user.id,
+      user_id: user.user_id,
+      displayName: Buffer.from(user.display_name).toString('base64')
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'サーバーエラーが発生しました' });
@@ -675,12 +684,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { username, userId, password } = req.body;
+  const { displayName, userId, password } = req.body;
 
   try {
     // ユーザーIDの重複チェック
     const [existingUsers] = await pool.query(
-      'SELECT * FROM users WHERE username = ?',
+      'SELECT * FROM users WHERE user_id = ?',
       [userId]
     );
 
@@ -693,8 +702,8 @@ export default async function handler(req, res) {
 
     // ユーザーの作成
     const [result] = await pool.query(
-      'INSERT INTO users (username, password) VALUES (?, ?)',
-      [userId, hashedPassword]
+      'INSERT INTO users (display_name, user_id, password) VALUES (?, ?, ?)',
+      [displayName, userId, hashedPassword]
     );
 
     res.status(201).json({ message: 'ユーザーが正常に登録されました', userId: result.insertId });
@@ -877,13 +886,16 @@ export default function CheckInvitations() {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log('Fetched invitations:', data); // デバッグ用
-                setInvitations(data.invitations);
+                // 現在時刻より後の寄合のみをフィルタリング
+                const futureInvitations = data.invitations.filter(invitation =>
+                    new Date(invitation.datetime) > new Date()
+                );
+                setInvitations(futureInvitations);
             } else {
                 setError('招待の取得に失敗しました');
             }
         } catch (error) {
-            console.error('Error fetching invitations:', error); // デバッグ用
+            console.error('Error fetching invitations:', error);
             setError('招待の取得中にエラーが発生しました');
         }
     };
@@ -1682,7 +1694,7 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export default function Home() {
-    const [username, setUsername] = useState('');
+    const [displayName, setDisplayName] = useState('');
     const [upcomingGatherings, setUpcomingGatherings] = useState([]);
     const router = useRouter();
     const checkIntervalRef = useRef(null);
@@ -1763,9 +1775,16 @@ export default function Home() {
             console.log('No token found, redirecting to login');
             router.push('/login');
         } else {
-            const decodedToken = JSON.parse(atob(token.split('.')[1]));
-            setUsername(decodedToken.username);
-            fetchUpcomingGatherings();
+            try {
+                const decodedToken = JSON.parse(atob(token.split('.')[1]));
+                const decodedName = atob(decodedToken.displayName);
+                setDisplayName(decodedName);
+                fetchUpcomingGatherings();
+            } catch (error) {
+                console.error('Error decoding token:', error);
+                localStorage.removeItem('token');
+                router.push('/login');
+            }
         }
 
         if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -1833,7 +1852,7 @@ export default function Home() {
         <div style={containerStyle}>
             <div style={cardStyle}>
                 <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1.5rem', textAlign: 'center' }}>オンラインサークルサービス</h1>
-                <p style={{ fontSize: '1.25rem', marginBottom: '0.5rem', textAlign: 'center' }}>{username}さん、サークルへようこそ</p>
+                <p style={{ fontSize: '1.25rem', marginBottom: '0.5rem', textAlign: 'center' }}>{displayName}さん、サークルへようこそ</p>
                 <p style={{ fontSize: '1.25rem', marginBottom: '1.5rem', textAlign: 'center' }}>なにをしますか？</p>
                 <div>
                     <Link href="/join-circle" style={buttonStyle}>
@@ -2096,7 +2115,7 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 export default function Register() {
-    const [username, setUsername] = useState('');
+    const [displayName, setDisplayName] = useState('');
     const [userId, setUserId] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -2110,7 +2129,7 @@ export default function Register() {
             const response = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, userId, password }),
+                body: JSON.stringify({ displayName, userId, password }),
             });
 
             if (response.ok) {
@@ -2136,18 +2155,18 @@ export default function Register() {
                     <input type="hidden" name="remember" defaultValue="true" />
                     <div className="rounded-md shadow-sm -space-y-px">
                         <div>
-                            <label htmlFor="username" className="sr-only">
+                            <label htmlFor="displayName" className="sr-only">
                                 ユーザー名
                             </label>
                             <input
-                                id="username"
-                                name="username"
+                                id="displayName"
+                                name="displayName"
                                 type="text"
                                 required
                                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                 placeholder="ユーザー名"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                value={displayName}
+                                onChange={(e) => setDisplayName(e.target.value)}
                             />
                         </div>
                         <div>
@@ -2182,6 +2201,12 @@ export default function Register() {
                         </div>
                     </div>
 
+                    {error && (
+                        <div className="text-red-500 text-center mt-2">
+                            {error}
+                        </div>
+                    )}
+
                     <div>
                         <button
                             type="submit"
@@ -2199,18 +2224,7 @@ export default function Register() {
             </div>
         </div>
     );
-
-    // エラーメッセージの表示を追加
-    {
-        error && (
-            <div className="text-red-500 text-center mt-2">
-                {error}
-            </div>
-        )
-    }
 }
-
-
 
 ---
 // pages\_app.js
@@ -2231,13 +2245,14 @@ const JWT_SECRET = process.env.JWT_SECRET;
 export default function verifyToken(req) {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
-    return null;
+    throw new Error('No token provided');
   }
 
   try {
-    return jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
+    return decoded;
   } catch (error) {
-    return null;
+    throw new Error('Invalid token');
   }
 }
 

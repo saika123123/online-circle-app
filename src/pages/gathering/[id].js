@@ -6,9 +6,10 @@ export default function GatheringDetail() {
     const [participants, setParticipants] = useState([]);
     const [userStatus, setUserStatus] = useState(null);
     const [error, setError] = useState('');
+    const [isCreator, setIsCreator] = useState(false);
+    const [isGatheringStarted, setIsGatheringStarted] = useState(false);
     const router = useRouter();
     const { id } = router.query;
-    const [isGatheringStarted, setIsGatheringStarted] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -47,6 +48,7 @@ export default function GatheringDetail() {
                 const data = await response.json();
                 setGathering(data.gathering);
                 setUserStatus(data.userStatus);
+                setIsCreator(data.gathering.creator_id === JSON.parse(atob(token.split('.')[1])).userId);
             } else {
                 setError('寄合の詳細情報の取得に失敗しました');
             }
@@ -103,6 +105,32 @@ export default function GatheringDetail() {
     const handleJoinGathering = () => {
         if (gathering.url) {
             window.open(gathering.url, '_blank');
+        }
+    };
+
+    const handleEdit = () => {
+        router.push(`/gathering/edit/${id}`);
+    };
+
+    const handleDelete = async () => {
+        if (confirm('本当にこの寄合を削除しますか？')) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/gatherings/${id}/edit`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    router.push('/gathering-list');
+                } else {
+                    const data = await response.json();
+                    setError(data.message);
+                }
+            } catch (error) {
+                setError('寄合削除中にエラーが発生しました');
+            }
         }
     };
 
@@ -190,6 +218,17 @@ export default function GatheringDetail() {
                                 </li>
                             ))}
                         </ul>
+
+                        {isCreator && (
+                            <div className="mt-8">
+                                <button
+                                    onClick={() => router.push(`/gathering/edit/${id}`)}
+                                    className="px-6 py-3 bg-yellow-500 text-white text-xl font-bold rounded-xl hover:bg-yellow-600 active:bg-yellow-700"
+                                >
+                                    編集
+                                </button>
+                            </div>
+                        )}
 
                         <button
                             onClick={() => router.push('/gathering-list')}

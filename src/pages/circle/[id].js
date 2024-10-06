@@ -6,6 +6,7 @@ export default function CircleDetail() {
     const [members, setMembers] = useState([]);
     const [error, setError] = useState('');
     const [isMember, setIsMember] = useState(false);
+    const [isCreator, setIsCreator] = useState(false);
     const router = useRouter();
     const { id } = router.query;
 
@@ -28,6 +29,7 @@ export default function CircleDetail() {
                 setCircle(data.circle);
                 setMembers(data.members);
                 setIsMember(data.circle.is_member);
+                setIsCreator(data.circle.creator_id === JSON.parse(atob(token.split('.')[1])).userId);
             } else {
                 setError('サークル情報の取得に失敗しました');
             }
@@ -47,13 +49,62 @@ export default function CircleDetail() {
             });
             if (response.ok) {
                 setIsMember(true);
-                fetchCircleDetail(); // メンバー情報を更新
+                fetchCircleDetail();
             } else {
                 const data = await response.json();
                 setError(data.message);
             }
         } catch (error) {
             setError('サークル参加中にエラーが発生しました');
+        }
+    };
+
+    const handleEdit = () => {
+        router.push(`/circle/edit/${id}`);
+    };
+
+    const handleLeave = async () => {
+        if (confirm('本当にこのサークルから脱退しますか？')) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/circles/${id}/leave`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    setIsMember(false);
+                    alert('サークルから脱退しました');
+                } else {
+                    const data = await response.json();
+                    setError(data.message);
+                }
+            } catch (error) {
+                setError('サークル脱退中にエラーが発生しました');
+            }
+        }
+    };
+
+    const handleDelete = async () => {
+        if (confirm('本当にこのサークルを削除しますか？')) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/circles/${id}/edit`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    router.push('/home');
+                } else {
+                    const data = await response.json();
+                    setError(data.message);
+                }
+            } catch (error) {
+                setError('サークル削除中にエラーが発生しました');
+            }
         }
     };
 
@@ -85,6 +136,26 @@ export default function CircleDetail() {
                                 className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                             >
                                 サークルに参加する
+                            </button>
+                        )}
+
+                        {isCreator && (
+                            <div className="mt-4">
+                                <button
+                                    onClick={() => router.push(`/circle/edit/${id}`)}
+                                    className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                                >
+                                    編集
+                                </button>
+                            </div>
+                        )}
+
+                        {isMember && !isCreator && (
+                            <button
+                                onClick={handleLeave}
+                                className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                            >
+                                サークルから脱退
                             </button>
                         )}
 

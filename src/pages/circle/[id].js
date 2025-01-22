@@ -238,7 +238,7 @@ export default function CircleDetail() {
                     )}
 
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => router.push('/check-circles')}
                         className="w-full p-4 bg-gray-100 text-gray-700 text-2xl rounded-2xl 
                                  hover:bg-gray-200 transition-all duration-200 flex items-center 
                                  justify-center shadow-lg border-2 border-gray-200"

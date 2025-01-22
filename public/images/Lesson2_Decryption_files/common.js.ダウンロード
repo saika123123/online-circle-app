@@ -1,0 +1,751 @@
+/*Page Top Button*/
+$(window).scroll(function() {
+	current_scroll = $(window).scrollTop();
+	window_height = $(window).height();
+	body_height = $('body').height();
+	btn_display = window_height * 0.1;
+	page_end = body_height - (current_scroll + window_height)
+
+	if (current_scroll > btn_display) {
+		$(".page-top-btn").css("opacity","1").css("display","block");
+	} else {
+		$(".page-top-btn").css("opacity","0").css("display","hidden");
+	};
+});
+
+$(function() {
+	$(".page-top-btn").click(function() {
+		$("html,body").animate({
+			scrollTop : 0
+		});
+	});
+});
+
+/* Control Button */
+$(function() {
+	currentOpen = "";
+
+	$(".btnControl:not(.relativeBtn)").click(function() {
+
+		clickedControl = $(this).attr("id")
+		targetMenu = clickedControl.replace("ctrl_btn", "ctrl_menu");
+		if (currentOpen != "" && targetMenu != currentOpen) {
+			var Opentarget = $(".control-menu");
+			$(Opentarget).hide();
+		}
+
+		$('#' + targetMenu).toggle();
+
+		if (targetMenu != currentOpen) {
+			currentOpen = targetMenu;
+		} else {
+			currentOpen = "";
+		}
+	});
+
+	CommonUtil.controlMenu = CommonFuncMaker.makeRelativeControlButton();
+	$(document).on('click', ".relativeBtn",CommonUtil.controlMenu);
+});
+
+function InputCount(itemid, viewid, optMaxLength) {
+
+	var maxLength = 268435456;
+    if(optMaxLength) {
+    	maxLength = optMaxLength;
+    }
+
+    var count = function() {
+    	var length = $(itemid).val().length;
+
+		if($(itemid).prop("tagName").toLowerCase() == "input") {
+			length = $(itemid).val().length;
+		}else if($(itemid).prop("tagName").toLowerCase() == "textarea") {
+			length = $(itemid).val().replace(/\r/g, '').replace(/\n/g, '\r\n').length;
+		}
+
+    	if(length > maxLength) {
+    		$(viewid).html(length).css("color", "red");
+    	} else {
+    		$(viewid).html(length).css("color", "");
+    	}
+    };
+
+	if($(itemid).length > 0 && $(viewid).length > 0) {
+	    $(itemid).bind('keydown keyup keypress blur', count);
+		count();
+	}
+}
+
+function BaseDialog(props) {
+	var me = this;
+
+	this.$el = $(props.el);
+	this.title = props.title;
+	this.width = (props.width == null) ? 400 : props.width;
+	this.height = (props.height == null) ? 200 : props.height;
+	this.buttons = (props.buttons == null) ? [] : props.buttons;
+	this.disptitle = (props.disptitle == null) ? true : props.disptitle;
+
+	var option = function(title, width, height, buttons, disptitle) {
+		return {
+			title : title,
+			modal : true,
+			width : width,
+			height : height,
+			resizable : false,
+			draggable : false,
+			buttons : buttons,
+		};
+	};
+
+	var callDialog = function() {
+		me.$el.dialog(option(me.title, me.width, me.height, me.buttons));
+		(me.disptitle) ? $('.ui-dialog-titlebar').css('display', '') : $('.ui-dialog-titlebar').css('display', 'none');
+		$(".ui-dialog-buttonset").addClass("commonDialogButtonArea");
+	};
+
+	this.open = function() {
+		/*TODO スマートフォン等追加のブロックが画面からはみ出る場合があるので一時コメントアウト*/
+		//$("body").css("overflow", "hidden");
+		callDialog()
+	};
+
+	this.close = function() {
+		$("body").css("overflow", "auto");
+		me.$el.dialog("close");
+	};
+
+	this.addBottun = function(text, className, cb) {
+		me.buttons.push({
+			"text" : text,
+			"class" : className ? className : "under-btn btn-color btn-txt",
+			"click" : cb ? cb : function(){
+				$("body").css("overflow", "auto");
+				me.close();
+			}
+		});
+	};
+
+	this.addSendButton = function(text, className){
+		me.buttons.push({
+			"text"  : text,
+			"class" : className ? className : "under-btn btn-color btn-txt disabled",
+			"click" : function(){
+				$("#nextButton").click();
+			}
+		})
+	};
+}
+
+var CommonUtil = {
+	"createMessageDialog" : function(title, width, height) {
+
+		// ダイアログ表示領域生成
+		if($("#confirm_dialog").length <= 0) {
+			var html = "";
+			html += '<div id="confirm_dialog" style="display : none;">';
+			html +=   '<div class="block-popup">'
+			html +=     '<div class="contents-list">'
+			html +=       '<div class="contents-detail contents-complete">'
+			html +=         '<div class="contents-complete-message">';
+			html +=           title;
+			html +=         '</div>';
+			html +=       '</div>'
+			html +=     '</div>'
+			html +=   '</div>'
+			html += '</div>';
+			$("body").append(html);
+		}
+
+		// ベースダイアログインスタンスを生成
+		var dialog = new BaseDialog({
+			el        : "#confirm_dialog",
+			title     : "",
+			width     : width,
+			height    : height,
+			disptitle : false
+		});
+
+		// メッセージ用に機能拡張
+		dialog.close = function() {
+			dialog.$el.dialog("close");
+			$("body").css("overflow", "auto");
+			$("#confirm_dialog").remove();
+		}
+
+		return dialog;
+	},
+
+	"createTempleteDialog" : function(id, width, height) {
+
+		// ベースダイアログインスタンスを生成
+		var dialog = new BaseDialog({
+			el        : "#" + id,
+			title     : "",
+			width     : width,
+			height    : height,
+			disptitle : false
+		});
+
+		return dialog;
+	},
+
+	"createProgress" : function(message) {
+
+		// プログレス表示領域生成
+		if($("#progress_dialog").length <= 0) {
+			var html = "";
+			html += '<div id="progress_dialog" class="progress-popup-area" style="display : none;">';
+			html +=   '<div class="progress-popup-block progress-popup-txt setting-color" id="commonProgressTitle">';
+			html +=     message;
+			html +=   '</div>';
+			html +=   '<div id="commonProgress" class="common-progress">';
+			html +=   '</div>';
+			html += '</div>';
+			$("body").append(html);
+		}
+
+		// ベースダイアログインスタンスを生成
+		var dialog = new BaseDialog({
+			el        : "#progress_dialog",
+			title     : "",
+			disptitle : false
+		});
+		// スマートフォン用ダイアログに書き換え
+		if(window.innerWidth < 481){
+			var dialog = new BaseDialog({
+				el        : "#progress_dialog",
+				title     : "",
+				disptitle : false,
+				width     : "95%"
+			});
+		}
+
+		// プログレス用に機能拡張
+		dialog.close = function() {
+			dialog.$el.dialog("close");
+			$("body").css("overflow", "auto");
+			$("#progress_dialog").remove();
+		};
+
+		return dialog;
+	},
+
+	"createProgressView" : function(title, rowMap, width, height) {
+
+		// プログレス表示領域生成
+		if($("#progress_dialog").length <= 0) {
+			var html = "";
+			html += '<div id="progress_dialog" class="progressView subblock clearfix registrationList" style="display : none;">';
+			html +=   '<div class="subblock_title" id="commonProgressTitle">';
+			html +=     title;
+			html +=   '</div>';
+			for(var row in rowMap){
+			html +=   '<div class="subblock_line clearfix registration_list_line">';
+			html +=   	'<div class="subblock_label">';
+			html +=   		'<span>' + rowMap[row].key + '</span>';
+			html +=   	'</div>';
+			html +=   	'<div class="subblock_form">';
+			if(rowMap[row].value != undefined){
+				html +=   '<div><input type="text" readonly="readonly" value=' + rowMap[row].value + '></div>';
+			}else{
+				html +=   '<div><input type="text" readonly="readonly" value=""></div>';
+			}
+			html +=   	'</div>';
+			html +=   '</div>';
+			}
+			html += '</div>';
+			$("body").append(html);
+		}
+
+		// ベースダイアログインスタンスを生成
+		var dialog = new BaseDialog({
+			el        : "#progress_dialog",
+			title     : "",
+			width    : width,
+			height    : height,
+			disptitle : false
+		});
+
+		// プログレス用に機能拡張
+		dialog.close = function() {
+			dialog.$el.dialog("close");
+			$("body").css("overflow", "auto");
+			$("#progress_dialog").remove();
+		};
+
+		return dialog;
+	}
+};
+CommonUtil.addOnLoad = function(funcLoad, idIsUnUsed) {
+
+	// 最初の1回目の場合のみ、readyに処理を設定する
+	var arrayLoad = [funcLoad];
+	var isInit = true;
+	var onLoad = function() {
+		isInit = false;
+		for(var i = 0; i < arrayLoad.length; i++) {
+			arrayLoad[i]();
+		}
+		arrayLoad = [];
+	};
+	$(document).ready(onLoad);
+
+	// 以降は追加した順に実行されるように配列に処理を追加していく
+	var keepId = null;
+	CommonUtil.addOnLoad = function(partLoad, targetId) {
+		arrayLoad.push(partLoad);
+
+		// onload処理後のコール時はサブターゲットに直接設定する
+		if(isInit == false && targetId && keepId != targetId) {
+			$("#" + targetId).ready(onLoad);
+		}
+	};
+};
+
+CommonUtil.autoGenerate = function(candidateChars) {
+	return function(length) {
+		var result = "";
+		for(var i = 0; i < length; i++) {
+			result += candidateChars[Math.floor(Math.random() * candidateChars.length)];
+		}
+		return result;
+	};
+};
+
+CommonUtil.randomString = CommonUtil.autoGenerate("abcdefghijklmnopqrstuvwxyz1234567890");
+CommonUtil.controlMenu = null;
+
+CommonUtil.isDate = function() {
+
+	CommonFuncMaker.makeDateFormat().apply(this);
+
+	var checkDate = $(this).val();
+	if(!checkDate.match(/^\d{4}\/\d{2}\/\d{2}$/)){
+		return false;
+	}
+
+	var year = checkDate.substr(0, 4) - 0;
+	var month = checkDate.substr(5, 2) - 1;
+	var day = checkDate.substr(8, 2) - 0;
+
+	if(month >= 0 && month <= 11 && day >= 1 && day <= 31){
+		var date = new Date(year, month, day);
+		if(isNaN(date)){
+			return false;
+		}else if(date.getFullYear() == year && date.getMonth() == month && date.getDate() == day){
+			return true;
+		}else{
+			return false;
+		}
+	}else{
+		return false;
+	}
+};
+
+CommonUtil.finder = function(object, className) {
+	var searchResult = $(object).find("." + className);
+
+	if(searchResult.length <= 0 || searchResult.length > 100) {
+		return ""
+	}
+
+	var val = "";
+	searchResult.each(function() {
+		var target = $(this);
+
+		if(target.prop("tagName").toLowerCase() == "input") {
+
+			if(target.attr("type") == "radio" || target.attr("type") == "checkbox") {
+				if(target.prop("checked")) {
+					val = target.val();
+				} else {
+					return true;
+				}
+			} else {
+				val = target.val();
+			}
+		} else {
+			val = target.text();
+		}
+
+		return false;
+	});
+
+	return val;
+};
+
+CommonUtil.pageSorter = function(boxId, sortableClassName, progressMessage) {
+
+	var scope = $("#" + boxId + " ." + sortableClassName);
+
+	scope.click(function() {
+		var me = this;
+
+		var progress = null;
+		if(progressMessage) {
+			progress = CommonUtil.createProgress(progressMessage);
+			progress.open();
+		}
+
+		setTimeout(function() {
+
+			// クリック対象のjQueryオブジェクト
+			var clickLabel = $(me);
+
+			// ソート条件
+			var sortCondition = "up";
+			if(clickLabel.hasClass("up")) {
+				sortCondition = "down";
+				clickLabel.find(".up-sortmark").removeClass("up-sortmark").addClass("sortmark");
+			} else {
+				clickLabel.find(".sortmark").removeClass("sortmark").addClass("up-sortmark");
+			}
+
+			var direction = sortCondition == "up" ? 1 : -1;
+
+			// ソート表示を変更する
+			clickLabel.removeClass("up down").addClass(sortCondition);
+
+			// ソートキー
+			var keys = clickLabel.attr("id").split(",");
+
+			// ソート対象
+			var sortElementArray = $(".sortBlock").get();
+
+			// ソート処理
+			var index = 0;
+			var compare = function(a, b) {
+
+				// 比較値を取得
+				var aVal = CommonUtil.finder(a, keys[index]);
+				var bVal = CommonUtil.finder(b, keys[index]);
+
+				// 比較処理
+				if(aVal > bVal) {
+					index = 0;
+					direction = sortCondition == "up" ? 1 : -1;
+					return 1 * direction;
+				} else if(aVal < bVal) {
+					index = 0;
+					direction = sortCondition == "up" ? 1 : -1;
+					return -1 * direction;
+				} else {
+
+					// 次点ソート条件があれば継続
+					index++;
+					if(keys.length > index) {
+						var nextCondition = keys[index].split(":");
+						if(nextCondition.length > 1) {
+							direction = nextCondition[1] == "up" ? 1 : -1;
+						}
+						keys[index] = nextCondition[0];
+
+						return compare(a, b);
+					} else {
+						index = 0;
+						direction = sortCondition == "up" ? 1 : -1;
+						return 0 * direction;
+					}
+				}
+			};
+			sortElementArray.sort(compare);
+
+			// ソート結果を画面に反映
+			var newElement = $("<div />");
+			for(var i = 0; i < sortElementArray.length; i++) {
+				newElement.append(sortElementArray[i]);
+			}
+			$(".sortParent").html(newElement);
+
+			if(progress) {
+				progress.close();
+			}
+
+		}, 0);
+	});
+};
+
+CommonUtil.allSorter = function(targetClass, sortParamName, callback) {
+
+	$("." + targetClass).click(function() {
+
+		var element = $(this);
+
+		var sortCondition = element.attr("id");
+		if(element.hasClass("up")) {
+			sortCondition = "-" + sortCondition;
+		}
+
+		$("input[name='" + sortParamName + "']").val(sortCondition);
+
+		if(callback) {
+			callback();
+		}
+	});
+};
+
+CommonUtil.setPaging = function(pageParamName, callback) {
+	CommonFuncMaker.makePagingEvent(pageParamName, callback)();
+};
+
+CommonUtil.serialToPostdata = function(serialData) {
+
+	var postData = {};
+	for(i in serialData) {
+		postData[serialData[i]["name"]] = serialData[i]["value"];
+	}
+	return postData;
+};
+
+CommonUtil.selectList = function(selectId, setId, btnClass) {
+
+    $(selectId).selectmenu({
+		classes: {
+			"ui-selectmenu-button": "ui-button-icon-only " + btnClass
+		},
+		close: function(){
+			$(setId).val(this.value);
+		}
+	});
+};
+
+CommonUtil.setMovieMaterialLink = function() {
+
+	//layout.htmlよりコピー
+	$('.movie-popup-link').magnificPopup({
+		type: 'iframe',
+		mainClass: 'mfp-fade',
+		removalDelay: 200,
+		preloader: false,
+		fixedContentPos: false
+	});
+
+};
+
+CommonUtil.makeDownFileName = function(fileName) {
+
+	var result = fileName;
+	if (fileName.length > 0) {
+		result = fileName.replace(/　/g, "_");
+		result = result.replace(/ /g, "_");
+		result = result.replace(/_+/g, "_");
+		result = encodeURI(result);
+		result = result.replace(/#/g, "%23");
+	}
+	return result;
+};
+
+var CommonFuncMaker = {
+	"makeAllChecker" : function(parentId, childClass) {
+		return function() {
+			//clickイベントはJSで動的に追加されたオブジェクトには追加されないため
+			//onイベントを使用し、documentを基点に発火させる
+			$(document).on('click',"#" + parentId,function() {
+				var isCheck = $("#" + parentId).prop("checked");
+				$("." + childClass).prop("checked", isCheck).change();
+			});
+
+			$(document).on('click',"." + childClass,function(){
+				var setflag = false;
+				$("." + childClass).each(function() {
+					if (!$(this).prop('checked')){
+						setflag = true;
+					}
+				});
+
+				if(setflag){
+					$("#" + parentId).prop('checked',false);
+				}
+				else{
+					$("#" + parentId).prop('checked',true);
+				}
+			});
+
+			var setflag = false;
+			if($("." + childClass).length > 0) {
+				$("." + childClass).each(function() {
+					if (!$(this).prop('checked')){
+						setflag = true;
+					}
+				});
+			} else {
+				setflag = true;
+			}
+
+			if(setflag){
+				$("#" + parentId).prop('checked',false);
+			}
+			else{
+				$("#" + parentId).prop('checked',true);
+			}
+		};
+	},
+
+	"setAllChecker" : function(parentId, childClass) {
+		return function() {
+			var setflag = false;
+			$("." + childClass).each(function() {
+				if (!$(this).prop('checked')){
+					setflag = true;
+				}
+			});
+
+			if(setflag){
+				$("#" + parentId).prop('checked',false);
+			}
+			else{
+				$("#" + parentId).prop('checked',true);
+			}
+		};
+	},
+
+	"makeAllCheckerWithoutDisabled" : function(parentId, childClass) {
+		return function() {
+			$("#" + parentId).click(function() {
+				var isCheck = $("#" + parentId).prop("checked");
+				$("." + childClass + ":not(:disabled)").prop("checked", isCheck);
+			});
+
+			var childCheckBoxClickEvent = function() {
+				var setflag = false;
+				if($("." + childClass).length > 0) {
+					$("." + childClass).each(function() {
+						if (!$(this).prop('checked')){
+							setflag = true;
+						}
+					});
+				} else {
+					setflag = true;
+				}
+
+				if(setflag){
+					$("#" + parentId).prop('checked',false);
+				}
+				else{
+					$("#" + parentId).prop('checked',true);
+				}
+			};
+
+			$("." + childClass).click(childCheckBoxClickEvent);
+
+			childCheckBoxClickEvent();
+
+		};
+	},
+
+	"makeCommonAjaxFail" : function() {
+		return function() {
+			window.location.href="/error";
+		};
+	},
+
+	"makePagingEvent" : function(nowPageName, cb) {
+		return function() {
+			$(".btn-paging").click(function() {
+
+				var pageNo = $(this).attr("class");
+				pageNo = pageNo.replace(/[^0-9]/g, '');
+				document.getElementsByName(nowPageName)[0].value = pageNo;
+				$("input[name='" + nowPageName + "']").val(pageNo);
+
+				cb();
+			});
+		};
+	},
+
+	"makeRelativeControlButton" : function() {
+		var currentOpen = null;
+		return function() {
+			var target = $(this).parent().find(".control-menu");
+			if (currentOpen !== null && target.is(currentOpen) === true) {
+				currentOpen.toggle();
+			} else {
+				var Opentarget = $(".control-menu");
+				$(Opentarget).hide();
+				target.toggle();
+			}
+			currentOpen = target.is(currentOpen) ? null : target;
+		};
+	},
+
+	"makeDateFormat" : function() {
+		return function() {
+			var input_ymd = $.trim($(this).val());
+			var format = input_ymd.split("/");
+			if (format.length == 3) {
+				if (format[1].length == 1 && format[1]) {
+					format[1] = "0" + format[1];
+				}
+				if (format[2].length == 1 && format[2]) {
+					format[2] = "0" + format[2];
+				}
+
+				$(this).val(format[0]+"/"+format[1]+"/"+format[2]);
+			}
+		};
+	}
+};
+
+
+var submitProgressFlag = true;
+$(document).ready(function() {
+	$(".confirmPopNone").click(function(e){
+		e.preventDefault();
+	    window.onbeforeunload = null;  // 関数を削除
+ 
+	    //フォームサブミットしていない場合、通常遷移させる
+	    if($(this).hasClass("notSubmit")){
+	    	window.location.href = $(this).attr("href");
+	    }
+	});
+
+	$(function() {
+		$("form").submit(function() {
+			if($(this).hasClass("confirmPopNoneForm")){
+			    window.onbeforeunload = null;  // 関数を削除
+		    }
+		
+			if(submitProgressFlag){
+
+				var prog_msg="Loading...";
+
+				if($("#progressMessage").length > 0){
+					prog_msg = $("#progressMessage").text();
+				}
+
+				if(typeof progress == "undefined" || progress == null) {
+					progress = CommonUtil.createProgress(prog_msg);
+					progress.open();
+				}
+			}
+		});
+	});
+});
+
+CommonUtil.notShowProgressExecutor = function(cb) {
+	var currentValue = submitProgressFlag;
+	submitProgressFlag = false;
+	cb();
+	submitProgressFlag = currentValue;
+}
+
+function toggleDiv(id){
+	var e = document.getElementById(id);
+    if(e.style.display == 'block'){
+       e.style.display = 'none';
+    }else{
+       e.style.display = 'block';
+    }
+}
+
+$(function () {
+  $('.resize-textarea').on('input', function () {
+
+	if ($(this).outerHeight()  < this.scrollHeight) {
+    	while ($(this).outerHeight() <= this.scrollHeight) {
+    		$(this).height($(this).height() + 1)
+		}
+	}
+  });
+});

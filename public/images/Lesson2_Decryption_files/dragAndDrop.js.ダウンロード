@@ -1,0 +1,265 @@
+
+/**
+ * ドラッグアンドドロップを設定する
+ *
+ * @param targetId 領域のID
+ * @param maxFileNum 保持するファイル数
+ * @param onDropCb ドロップ時のコールバック処理
+ * @returns 自インスタンス
+ */
+function DandD(targetId, emptyItemNum, onDropCb, maxFileNum) {
+
+	this.maxFileNum = 1000;
+	this.uploadFiles = [];
+	this.filesLength = 0;
+	this.onDropCb = null;
+
+	// パラメータを設定
+	if(emptyItemNum) {
+		for(var i = 0; i < emptyItemNum; i++) {
+			this.uploadFiles.push("");
+		}
+	}
+
+	if(maxFileNum && maxFileNum > 0 && maxFileNum < 10) {
+		this.maxFileNum = maxFileNum;
+	}
+	this.onDropCb = onDropCb;
+
+	// 対象エリアを取得
+	var targetArea = $("#" + targetId);
+
+	// 対象エリアが存在しない場合はドラッグ＆ドロップを設定しない
+	if($("#" + targetId).length > 0) {
+
+		// 対象エリアにイベントを設定
+		targetArea.on("dragenter", this.wrap(this.onDragenter));
+		targetArea.on("dragleave", this.wrap(this.onDragleave));
+		targetArea.on("dragover", this.wrap(this.onDragover));
+		targetArea.on("drop", this.wrap(this.onDrop));
+	}
+};
+
+//----------------------
+// Public メソッド
+//----------------------
+/**
+ * インプット情報を初期化する
+ *
+ */
+DandD.prototype.clear = function() {
+	this.uploadFiles = [];
+};
+
+/**
+ * 保持済みのファイル情報（配列）を取得する
+ */
+DandD.prototype.getUploadFiles = function() {
+	return this.uploadFiles;
+};
+
+/**
+ * 保持済みのファイル情報（最後の1ファイル）を取得する
+ */
+DandD.prototype.getUploadFile = function() {
+	var file = null;
+
+	// 配列の最後を取得
+	var length = this.uploadFiles.length;
+	if(length > 0) {
+		file = this.uploadFiles[length - 1]
+	}
+
+	return file;
+};
+
+/**
+ * 直近で追加されたファイルの情報を取得する
+ */
+DandD.prototype.getUploadLatestFiles = function(){
+	var allFiles = this.uploadFiles;
+
+	var returnFiles = [];
+	var count = allFiles.length - this.filesLength;
+	for(var i = count; i <  allFiles.length; i++){
+		var file = allFiles[i];
+		returnFiles.push(file);
+	}
+
+	return returnFiles;
+}
+
+DandD.prototype.setFileClear = function(blockArea, clearButton) {
+	var me = this;
+
+	var block = "." + blockArea;
+
+	// 削除ボタンの処理を設定
+	$("." + clearButton).off("click");
+	$("." + clearButton).click(function(event) {
+		event.preventDefault();
+
+		// 保存配列から削除
+		var clickIndex = $("." + clearButton).index(this);
+		me.uploadFiles.splice(clickIndex, 1);
+
+		// 要素を削除
+		$(this).closest(block).remove();
+
+		var clearClass = $(this).attr('class');
+		var clearItem = /messageDelete/;
+		var clearElemnt = clearClass.match(clearItem);
+		// 課題提出画面の取消ボタン
+		if ("messageDelete" == clearElemnt) {
+			clearUploadMessage();
+		}
+	});
+};
+
+//----------------------
+// 内部メソッド
+//----------------------
+DandD.prototype.onDragenter = function(event) {
+
+	// stop default event
+	event.stopPropagation();
+	event.preventDefault();
+
+    // Drag Type
+    var type = this.dragtype(event);
+
+    // display update
+    if (type) {
+        //this.showpreviewelement(section, type);
+    }
+    return false;
+};
+
+DandD.prototype.onDragleave = function(event) {
+
+	// stop default event
+	event.stopPropagation();
+	event.preventDefault();
+
+    return false;
+};
+
+DandD.prototype.onDragover = function(event) {
+
+	// stop default event
+	event.stopPropagation();
+	event.preventDefault();
+    return false;
+};
+
+DandD.prototype.onDrop = function(event) {
+
+	// stop default event
+	event.stopPropagation();
+	event.preventDefault();
+
+    // type check
+	var type = this.dragtype(event);
+    if (!type) {
+        return false;
+    }
+
+    // targetArea
+    var section = event.currentTarget;
+
+    // only file
+    if (type == 'Files') {
+
+    	// get the file object
+    	var files = event.originalEvent.dataTransfer.files;
+
+    	this.filesLength = files.length;
+    	// ファイルチェック
+    	var uploadFiles = [];
+        var index = 0;
+        for (var i = 0; i < files.length; i++) {
+        	var file = files[i];
+
+        	if (file.name != '.ds_store') {
+        		 uploadFiles[index] = file;
+        		 index++;
+        	}
+        }
+
+        //チェックがOKなファイルのみアップロード対象とする
+        Array.prototype.push.apply(this.uploadFiles, uploadFiles);
+
+        // 保持最大長を超えたかを判定
+        var isOverLimit = false;
+        if(this.uploadFiles.length > this.maxFileNum) {
+        	isOverLimit = true
+        }
+
+        // ファイルが追加された事を通知
+        var isOverwrite = false;
+        if(this.onDropCb) {
+        	isOverwrite = this.onDropCb(isOverLimit);
+        }
+
+        // オーバー分を上書きしてよければ上書き
+        if(isOverLimit && isOverwrite === true) {
+        	this.uploadFiles = this.uploadFiles.slice(0 - this.maxFileNum);
+        }
+        else if(isOverLimit) {
+        	this.uploadFiles = this.uploadFiles.slice(0, this.maxFileNum);
+        }
+    }
+
+    return false;
+};
+
+DandD.prototype.dragtype = function(e) {
+
+	// ドラッグアイテムのタイプをチェック
+	var types = e.originalEvent.dataTransfer.types;
+
+	if (this.typesincludes(types, 'Files')) {
+        this.realtype = 'Files';
+        return 'Files';
+    }
+    if (this.typesincludes(types, 'url')) {
+        this.realtype = 'url';
+        return 'url';
+    }
+    if (this.typesincludes(types, 'text/uri-list')) {
+        this.realtype = 'text/uri-list';
+        return 'url';
+    }
+    if (this.typesincludes(types, 'text/html')) {
+        this.realtype = 'text/html';
+        return 'text/html';
+    }
+    if (this.typesincludes(types, 'text')) {
+        this.realtype = 'text';
+        return 'text';
+    }
+    if (this.typesincludes(types, 'text/plain')) {
+        this.realtype = 'text/plain';
+        return 'text';
+    }
+    return false; // No types we can handle
+};
+
+//-------------------
+// Util
+//-------------------
+DandD.prototype.wrap = function(cb) {
+	var self = this;
+	return function() {
+		cb.apply(self, arguments);
+	}
+};
+
+DandD.prototype.typesincludes = function(eventTypes, type) {
+    for (var i = 0; i < eventTypes.length; i++) {
+        if (eventTypes[i] == type) {
+            return true;
+        }
+    }
+    return false;
+};

@@ -1,0 +1,585 @@
+
+.report-file-input-area{
+	padding-bottom: 90px;
+}
+@media(max-width: 480px){
+	.report-file-input-area{
+		padding-bottom: 0px;
+	}
+}
+
+.report-file-object-area{
+	margin-bottom: 10px;
+}
+
+.report-file-name-area{
+	float: left;
+	width: 55%;
+}
+
+@media(max-width: 480px){
+	.report-file-btn-sp{
+		margin-left: 80%;
+	}
+}
+
+/* 提出画面*/
+.report-submission-file-name{
+	padding-left: 20px;
+	width: 30%;
+	word-break: break-all;
+}
+@media(max-width: 480px){
+	.report-submission-file-name{
+		padding-left: 10px;
+		width: 27%;
+	}
+}
+
+.report-submission-comment{
+	padding-left: 20px;
+	width: 30%;
+	word-break: break-all;
+}
+@media(max-width: 480px){
+	.report-submission-comment{
+		padding-left: 10px;
+		width: 27%;
+	}
+}
+
+.report-submission-update-date{
+	padding-left: 20px;
+	width: 30%;
+	word-break: break-all;
+}
+@media(max-width: 480px){
+	.report-submission-update-date{
+		padding-left: 10px;
+	}
+}
+
+.report-submission-file-delete{
+	padding-left: 20px;
+	width: 10%;
+	word-break: break-all;
+}
+@media(max-width: 480px){
+	.report-submission-file-delete{
+		padding-left: 10px;
+		width: 16%;
+	}
+}
+
+.report-submission-file-title-header-area{
+	color: #FFF;
+	display: table-cell;
+	text-align: center;
+	width: 20%;
+	vertical-align: middle;
+}
+@media(max-width: 480px){
+	.report-submission-file-title-header-area{
+		display: block;
+		padding: 9px 7px 7px;
+		text-align: left;
+		width: 100%;
+	}
+}
+
+.report-submission-link-area{
+	background-color: #EDF3F7;
+	text-align: right;
+}
+@media(max-width: 480px){
+	.report-submission-link-area{
+		display: none;
+	}
+}
+
+.report-submission-area{
+	padding: 8px 6px 6px 20px;
+}
+@media(max-width: 480px){
+	.report-submission-area{
+		padding: 10px 1px;
+	}
+}
+
+.report-submission-drag-drop-area{
+	width: 100%;
+	height: 100px;
+	background-color: #cde4ff;
+	color: rgba(00,00,00,0.35);
+	padding: 20px;
+}
+
+/* 提出確認画面 */
+.report-submission-file-confirm-name{
+	margin-left: 10px;
+	width: 50%;
+}
+
+.report-submission-confirm-comment{
+	margin-left: 10px;
+	width: 50%;
+}
+
+/* 提出状況 */
+.report-management-result-checkbox{
+	width: 5%;
+}
+@media(max-width: 480px){
+	.report-management-result-checkbox{
+		width: 10%;
+	}
+}
+
+/*スマートフォン用 検索結果詳細*/
+@media(max-width: 480px){
+	.report-management-result-detail{
+		width: 80%;
+	}
+}
+
+.report-management-result-user-number{
+	margin-left: 5px;
+	width: 12%;
+}
+@media(max-width: 480px){
+	.report-management-result-user-number{
+		display: inline-block;
+		margin-bottom: 3px;
+		width: 50%;
+	}
+}
+
+.report-management-result-user-id{
+	margin-left: 5px;
+	width: 12%;
+}
+@media(max-width: 480px){
+	.report-management-result-user-id{
+		display: inline-block;
+		margin-bottom: 3px;
+		width: 50%;
+	}
+}
+
+.report-management-result-name{
+	margin-left: 5px;
+	width: 15%;
+}
+@media(max-width: 480px){
+	.report-management-result-name{
+		margin-bottom: 3px;
+		width: 100%;
+	}
+}
+
+.report-management-result-submission{
+	margin-left: 5px;
+	width: 13%;
+}
+@media(max-width: 480px){
+	.report-management-result-submission{
+		display: inline-block;
+		margin-bottom: 3px;
+		width: 45%;
+	}
+}
+
+.report-management-result-submission-comment{
+	margin-left: 5px;
+	width: 12%;
+
+}
+@media(max-width: 480px){
+	.report-management-result-submission-comment{
+		margin-bottom: 3px;
+		width: 100%;
+	}
+}
+
+.report-management-result-submission-date{
+	margin-left: 5px;
+	width: 10%;
+}
+@media(max-width: 480px){
+	.report-management-result-submission-date{
+		display: inline-block;
+		margin-left: 0px;
+		margin-bottom: 3px;
+		width: 50%;
+	}
+}
+
+.report-management-result-submission-status{
+	margin-left: 5px;
+	width: 11%;
+}
+@media(max-width: 480px){
+	.report-management-result-submission-status{
+		margin-bottom: 3px;
+		width: 100%;
+	}
+}
+
+.report-management-result-evaluation-admin{
+	margin-left: 5px;
+	width: 10%;
+}
+@media(max-width: 480px){
+	.report-management-result-evaluation-admin{
+		width: 100%;
+	}
+}
+
+.report-management-result-evaluation-no-admin{
+	margin-left: 5px;
+	width: 15%;
+}
+@media(max-width: 480px){
+	.report-management-result-evaluation-no-admin{
+		margin-bottom: 3px;
+		width: 100%;
+	}
+}
+
+.report-management-result-comment{
+	margin-left: 5px;
+	width: 10%;
+}
+@media(max-width: 480px){
+	.report-management-result-comment{
+		margin-bottom: 3px;
+		width: 100%;
+	}
+}
+
+.report-management-result-action{
+	margin-left: 5px;
+	width: 5%;
+}
+@media(max-width: 480px){
+	.report-management-result-action{
+		width: 10%;
+	}
+}
+
+.no-submission{
+	background-color: #FFCCCC;
+}
+
+.no-submission:nth-child(odd){
+	background-color: #FFCCCC;
+}
+
+.no-submission:nth-child(even){
+	background-color: #FFCCCC;
+}
+
+/* 全体提出状況確認 */
+.report-all-status-block{
+	margin: 0px 10px;
+	width: 50%;
+}
+
+/* 凡例用(ボックス) */
+.report-all-status-box{
+	margin: 5px 2px 0px 2px;
+	padding: 4px 0px;
+	width: 44px;
+}
+@media(max-width: 480px){
+	.report-all-status-box{
+		padding: 9px 0px;
+	}
+}
+
+/*凡例用(提出済みの黒ボックス*/
+.report-all-status-submit{
+	color: #FFF;
+	background-color: #545555;
+}
+
+/* 凡例用(期間外の赤枠) */
+.report-all-status-over-limit{
+	background-color: #FFC1D0;
+}
+
+/*上段ブロック*/
+.report-all-status-title-list-no{
+	margin-left: 15px;
+	width: 10%;
+}
+
+.report-all-status-title-list-name{
+	margin-left: 15px;
+	width: 90%;
+}
+
+.report-all-status-example-status{
+	margin-left: 15px;
+	width: calc(100% - 50px);
+}
+
+.report-all-status-example-legend{
+	text-align: center;
+	width: 50px;
+}
+
+.report-example-legend-contents{
+	height: 34px;
+}
+@media(max-width: 480px){
+	.report-example-legend-contents{
+		height: 44px;
+	}
+}
+
+/*下段ブロック*/
+.report-all-status-list-user-number{
+	margin-left: 15px;
+	width: 100px;
+}
+
+.report-all-status-list-user-id{
+	margin-left: 15px;
+	width: 100px;
+}
+
+.report-all-status-list-user-name{
+	margin-left: 15px;
+	width: 150px;
+}
+
+.report-all-status-detail-fixed{
+	width: 350px;
+}
+
+.report-all-status-detail-fixed-noadmin{
+	width: 250px;
+}
+
+.report-all-status-detail-scroll{
+	overflow-x: scroll;
+	white-space: nowrap;
+}
+
+.report-all-status-detail-scroll-area{
+	width: max-content;
+}
+
+.report-all-status-link{
+	cursor: pointer;
+}
+
+.report-all-status-link:hover{
+	opacity: 0.6;
+}
+
+.report-all-status-list-report-no{
+	text-align: center;
+	min-width: 50px;
+	max-width: 50px;
+}
+
+/* 催促メール */
+.input-report-send-mail-select-box{
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	cursor: pointer;
+	height: 30px;
+	text-indent: 0.01px;
+	text-overflow: ellipsis;
+	width: 96px;
+}
+
+.report-send-mail-list-checkbox{
+	width: 10%;
+}
+
+.report-send-mail-list-user-number{
+	margin-left: 15px;
+	width: 30%;
+}
+
+.report-send-mail-list-user-id{
+	margin-left: 15px;
+	width: 30%;
+}
+
+.report-send-mail-list-name{
+	margin-left: 15px;
+	width: 30%;
+}
+.report-send-mail-list-no-data{
+	margin-left: 15px;
+	width: 100%;
+}
+
+.report-send-mail-no-adress-user-number{
+	margin-left: 15px;
+	width: 33%;
+}
+.report-send-mail-no-adress-user-id{
+	margin-left: 15px;
+	width: 33%;
+}
+
+.report-send-mail-no-adress-user-name{
+	margin-left: 15px;
+	width: 33%;
+}
+
+.week-select-margin{
+	margin-left: 13px;
+}
+
+.report-send-select-area{
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+#sendNow {
+	display : none;
+}
+
+#sendReserved .limitBefore{
+	display : none;
+}
+
+#sendLimitBefore .reserved {
+	display : none;
+}
+
+.report-send-mail-send-type-area{
+	border-top: 1px solid #DDD;
+	margin-top: 10px;
+	padding-top: 5px;
+}
+
+/* 課題フィードバック */
+.report-feedback-submit-file-name{
+	margin-left: 15px;
+	width: 40%;
+}
+@media(max-width: 480px){
+	.report-submission-file-name{
+		width: 35%;
+	}
+}
+
+.report-feedback-submit-file-date{
+	margin-left: 15px;
+	width: 40%;
+}
+@media(max-width: 480px){
+	.report-feedback-submit-file-date{
+		width: 35%;
+	}
+}
+
+.report-feedback-submit-file-delete{
+	margin-left: 15px;
+	text-align: left;
+	width: 20%;
+}
+@media(max-width: 480px){
+	.report-feedback-submit-file-delete{
+		width: 30%;
+	}
+}
+
+
+/* 所属グループの提出確認画面*/
+.report-group-submission-user-number{
+	width: 15%;
+	word-break: break-all;
+}
+
+.report-group-submission-user-id{
+	width: 15%;
+	word-break: break-all;
+}
+
+.report-group-submission-user-name{
+	width: 15%;
+	word-break: break-all;
+}
+@media(max-width: 480px){
+	.report-group-submission-user-name{
+		width: 100%;
+		word-break: break-all;
+	}
+}
+
+.report-group-submission-group-name{
+	margin-left: 10px;
+	width: 15%;
+	word-break: break-all;
+}
+
+.report-group-submission-status{
+	margin-left: 10px;
+	width: 10%;
+	word-break: break-all;
+}
+
+.report-group-submission-update-date{
+	margin-left: 10px;
+	width: 10%;
+	word-break: break-all;
+}
+@media(max-width: 480px){
+	.report-group-submission-update-date{
+		width: 50%;
+	}
+}
+
+.report-group-submission-name{
+	margin-left: 10px;
+	width: 20%;
+	word-break: break-all;
+}
+@media(max-width: 480px){
+	.report-group-submission-name{
+		width: 50%;
+	}
+}
+
+.sp-report-group-submission-file-info{
+	display: none;
+}
+@media(max-width: 480px){
+	.sp-report-group-submission-file-info{
+		display: block;
+		width: 100%;
+	}
+}
+
+@media(max-width: 480px){
+	.sp-report-group-submission-area{
+		margin-top: 5px;
+	}
+}
+
+.report_body_wrapper {
+	padding: 6px 0px 8px;
+}
+
+.report_body_wrapper #bodyEditor {
+	height: 500px;
+	/*height: auto;
+	min-height: 480px;*/
+}
+
+.report_body_wrapper #submissionText {
+	min-height: 11em;
+}
+
+.feedback-savemove-btn{
+	width: 93%;
+}

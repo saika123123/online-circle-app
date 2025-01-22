@@ -26,70 +26,82 @@ export default function CreateCircle() {
             });
 
             if (response.ok) {
+                alert('サークルの作成が完了しました！\n新しい仲間との楽しい活動を始めましょう。');
                 router.push('/home');
             } else {
                 const data = await response.json();
                 setError(data.message);
             }
         } catch (error) {
-            setError('サークル作成中にエラーが発生しました');
+            setError('サークル作成中に問題が発生しました。もう一度お試しください。');
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                    サークルを作成
-                </h2>
-            </div>
+        <div className="min-h-screen bg-orange-50 p-6">
+            <div className="max-w-4xl mx-auto">
+                {/* ヘッダー */}
+                <div className="bg-white rounded-3xl shadow-lg p-8 mb-8 border-2 border-orange-200">
+                    <h1 className="text-4xl font-bold text-center text-gray-800 mb-4 flex items-center justify-center">
+                        <span className="text-5xl mr-3">✨</span>
+                        新しいサークルを作る
+                    </h1>
+                    <p className="text-2xl text-center text-gray-600">
+                        あなたの好きなことを通じて、新しい仲間との出会いを創りましょう
+                    </p>
+                </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                                サークル名
+                {/* メインフォーム */}
+                <div className="bg-white rounded-3xl shadow-lg p-8 border-2 border-orange-200">
+                    <form className="space-y-8" onSubmit={handleSubmit}>
+                        {/* サークル名 */}
+                        <div className="bg-blue-50 p-6 rounded-2xl">
+                            <label className="text-2xl font-bold text-gray-700 mb-4 block flex items-center">
+                                <span className="text-3xl mr-2">📝</span>
+                                サークルの名前
                             </label>
                             <input
-                                id="name"
-                                name="name"
                                 type="text"
                                 required
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                className="w-full p-4 text-2xl border-2 border-blue-200 rounded-xl
+                                         focus:border-blue-400 focus:ring focus:ring-blue-200"
+                                placeholder="例：楽しい写真部、お茶会サークル"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                             />
                         </div>
 
-                        <div>
-                            <label htmlFor="theme" className="block text-sm font-medium text-gray-700">
-                                サークルテーマ
+                        {/* テーマ */}
+                        <div className="bg-green-50 p-6 rounded-2xl">
+                            <label className="text-2xl font-bold text-gray-700 mb-4 block flex items-center">
+                                <span className="text-3xl mr-2">🎯</span>
+                                サークルのテーマ
                             </label>
                             <input
-                                id="theme"
-                                name="theme"
                                 type="text"
                                 required
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                className="w-full p-4 text-2xl border-2 border-green-200 rounded-xl
+                                         focus:border-green-400 focus:ring focus:ring-green-200"
+                                placeholder="例：写真撮影を楽しむ、お茶を通じた交流"
                                 value={theme}
                                 onChange={(e) => setTheme(e.target.value)}
                             />
                         </div>
 
-                        <div>
-                            <label htmlFor="genre" className="block text-sm font-medium text-gray-700">
-                                ジャンル
+                        {/* ジャンル */}
+                        <div className="bg-purple-50 p-6 rounded-2xl">
+                            <label className="text-2xl font-bold text-gray-700 mb-4 block flex items-center">
+                                <span className="text-3xl mr-2">🎨</span>
+                                活動ジャンル
                             </label>
                             <select
-                                id="genre"
-                                name="genre"
                                 required
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                className="w-full p-4 text-2xl border-2 border-purple-200 rounded-xl
+                                         focus:border-purple-400 focus:ring focus:ring-purple-200"
                                 value={genre}
                                 onChange={(e) => setGenre(e.target.value)}
                             >
-                                <option value="">選択してください</option>
+                                <option value="">ジャンルを選んでください</option>
                                 <option value="スポーツ">スポーツ</option>
                                 <option value="音楽">音楽</option>
                                 <option value="芸術">芸術</option>
@@ -98,58 +110,74 @@ export default function CreateCircle() {
                             </select>
                         </div>
 
-                        <div>
-                            <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
-                                対象性別
+                        {/* 対象性別 */}
+                        <div className="bg-rose-50 p-6 rounded-2xl">
+                            <label className="text-2xl font-bold text-gray-700 mb-4 block flex items-center">
+                                <span className="text-3xl mr-2">👥</span>
+                                参加できる方
                             </label>
                             <select
-                                id="gender"
-                                name="gender"
                                 required
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                className="w-full p-4 text-2xl border-2 border-rose-200 rounded-xl
+                                         focus:border-rose-400 focus:ring focus:ring-rose-200"
                                 value={gender}
                                 onChange={(e) => setGender(e.target.value)}
                             >
-                                <option value="">選択してください</option>
+                                <option value="">選んでください</option>
                                 <option value="男性のみ">男性のみ</option>
                                 <option value="女性のみ">女性のみ</option>
-                                <option value="両方">両方</option>
+                                <option value="両方">どなたでも</option>
                             </select>
                         </div>
 
-                        <div>
-                            <label htmlFor="details" className="block text-sm font-medium text-gray-700">
-                                詳細事項
+                        {/* 詳細情報 */}
+                        <div className="bg-orange-50 p-6 rounded-2xl">
+                            <label className="text-2xl font-bold text-gray-700 mb-4 block flex items-center">
+                                <span className="text-3xl mr-2">📋</span>
+                                活動内容の詳細
                             </label>
                             <textarea
-                                id="details"
-                                name="details"
-                                rows="3"
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                rows="4"
+                                className="w-full p-4 text-2xl border-2 border-orange-200 rounded-xl
+                                         focus:border-orange-400 focus:ring focus:ring-orange-200"
+                                placeholder="サークルの活動内容や、こんな方に参加してほしいなど、詳しい情報を書いてください"
                                 value={details}
                                 onChange={(e) => setDetails(e.target.value)}
-                            ></textarea>
+                            />
                         </div>
 
+                        {/* エラーメッセージ */}
                         {error && (
-                            <div className="text-red-500 text-sm mt-2">
-                                {error}
+                            <div className="bg-rose-50 border-2 border-rose-200 text-rose-700 p-6 rounded-2xl">
+                                <p className="text-2xl text-center flex items-center justify-center">
+                                    <span className="text-3xl mr-2">⚠️</span>
+                                    {error}
+                                </p>
                             </div>
                         )}
 
-                        <div className="flex space-x-4">
+                        {/* ボタン */}
+                        <div className="space-y-4 pt-4">
                             <button
                                 type="submit"
-                                className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                className="w-full p-6 bg-gradient-to-r from-green-500 to-green-600 
+                                         text-white text-2xl rounded-xl hover:from-green-600 
+                                         hover:to-green-700 transition-all duration-200 flex 
+                                         items-center justify-center shadow-lg"
                             >
-                                作成
+                                <span className="text-3xl mr-2">✨</span>
+                                サークルを作成する
                             </button>
+
                             <button
                                 type="button"
                                 onClick={() => router.back()}
-                                className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                className="w-full p-4 bg-white text-gray-700 text-2xl rounded-xl 
+                                         hover:bg-gray-50 transition-all duration-200 flex 
+                                         items-center justify-center shadow-lg border-2 border-gray-200"
                             >
-                                戻る
+                                <span className="text-3xl mr-2">⬅️</span>
+                                前の画面に戻る
                             </button>
                         </div>
                     </form>

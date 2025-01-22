@@ -22,10 +22,10 @@ export default function JoinCircle() {
                 const data = await response.json();
                 setCircles(data.circles);
             } else {
-                setError('サークル情報の取得に失敗しました');
+                setError('サークル情報を取得できませんでした。もう一度お試しください。');
             }
         } catch (error) {
-            setError('サークル情報の取得中にエラーが発生しました');
+            setError('サークル情報の取得中に問題が発生しました。もう一度お試しください。');
         }
     };
 
@@ -39,59 +39,176 @@ export default function JoinCircle() {
                 }
             });
             if (response.ok) {
-                // サークルに参加した後、リストから削除
                 setCircles(circles.filter(circle => circle.id !== circleId));
+                alert('サークルへの参加が完了しました！');
             } else {
                 const data = await response.json();
                 setError(data.message);
             }
         } catch (error) {
-            setError('サークル参加中にエラーが発生しました');
+            setError('サークル参加中に問題が発生しました。もう一度お試しください。');
+        }
+    };
+
+    // ジャンルに応じたアイコンを返す関数
+    const getGenreIcon = (genre) => {
+        switch (genre) {
+            case 'スポーツ': return '⚽';
+            case '音楽': return '🎵';
+            case '芸術': return '🎨';
+            case '学習': return '📚';
+            default: return '✨';
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-            <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-light-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
-                <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
-                    <div className="max-w-md mx-auto">
-                        <h2 className="text-2xl font-semibold mb-4">参加可能なサークル</h2>
-                        {error && <p className="text-red-500 mb-4">{error}</p>}
-                        {circles.length > 0 ? (
-                            <ul className="space-y-4">
-                                {circles.map((circle) => (
-                                    <li key={circle.id} className="border p-4 rounded-md">
-                                        <h3 className="font-semibold">{circle.name}</h3>
-                                        <p>テーマ: {circle.theme}</p>
-                                        <p>ジャンル: {circle.genre}</p>
-                                        <div className="mt-2 space-x-2">
-                                            <button
-                                                onClick={() => handleJoin(circle.id)}
-                                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                            >
-                                                参加する
-                                            </button>
-                                            <button
-                                                onClick={() => router.push(`/circle/${circle.id}`)}
-                                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                                            >
-                                                詳細を見る
-                                            </button>
+        <div className="min-h-screen bg-orange-50 p-6">
+            <div className="max-w-4xl mx-auto">
+                {/* ヘッダー部分 */}
+                <div className="bg-white rounded-3xl shadow-lg p-8 mb-8 border-2 border-orange-200">
+                    <h1 className="text-4xl font-bold text-center text-gray-800 mb-4 flex items-center justify-center">
+                        <span className="text-5xl mr-3">✨</span>
+                        新しい仲間との出会い
+                    </h1>
+                    <p className="text-2xl text-center text-gray-600">
+                        興味のあるサークルに参加して、新しい仲間と楽しい時間を過ごしましょう
+                    </p>
+                </div>
+
+                {/* エラーメッセージ */}
+                {error && (
+                    <div className="bg-rose-50 border-2 border-rose-200 text-rose-700 p-6 rounded-2xl mb-8">
+                        <p className="text-2xl text-center flex items-center justify-center">
+                            <span className="text-3xl mr-2">⚠️</span>
+                            {error}
+                        </p>
+                    </div>
+                )}
+
+
+                {/* サークル一覧 */}
+                <div className="space-y-6">
+                    {circles.length > 0 ? (
+                        circles.map((circle) => (
+                            <div key={circle.id}
+                                className="bg-white rounded-3xl shadow-lg p-8 border-2 border-orange-200
+                                         hover:shadow-xl transition-shadow duration-200">
+                                <div className="flex items-center mb-6">
+                                    <span className="text-5xl mr-4">{getGenreIcon(circle.genre)}</span>
+                                    <h2 className="text-3xl font-bold text-gray-800">{circle.name}</h2>
+                                </div>
+
+                                <div className="space-y-4 mb-6">
+                                    <div className="bg-orange-50 p-4 rounded-xl">
+                                        <p className="text-2xl text-gray-700">
+                                            <span className="font-semibold">テーマ：</span>
+                                            {circle.theme}
+                                        </p>
+                                    </div>
+                                    <div className="bg-blue-50 p-4 rounded-xl">
+                                        <p className="text-2xl text-gray-700">
+                                            <span className="font-semibold">ジャンル：</span>
+                                            {circle.genre}
+                                        </p>
+                                    </div>
+                                    {circle.details && (
+                                        <div className="bg-green-50 p-4 rounded-xl">
+                                            <p className="text-2xl text-gray-700">
+                                                <span className="font-semibold">活動内容：</span>
+                                                {circle.details}
+                                            </p>
                                         </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>参加可能なサークルはありません。</p>
-                        )}
+                                    )}
+                                </div>
+
+                                <div className="flex space-x-4">
+                                    <button
+                                        onClick={() => handleJoin(circle.id)}
+                                        className="flex-1 p-4 bg-gradient-to-r from-green-500 to-green-600 
+                                                 text-white text-2xl rounded-xl hover:from-green-600 
+                                                 hover:to-green-700 transition-all duration-200 flex 
+                                                 items-center justify-center"
+                                    >
+                                        <span className="text-3xl mr-2">🤝</span>
+                                        参加する
+                                    </button>
+                                    <button
+                                        onClick={() => router.push(`/circle/${circle.id}`)}
+                                        className="flex-1 p-4 bg-gradient-to-r from-blue-500 to-blue-600 
+                                                 text-white text-2xl rounded-xl hover:from-blue-600 
+                                                 hover:to-blue-700 transition-all duration-200 flex 
+                                                 items-center justify-center"
+                                    >
+                                        <span className="text-3xl mr-2">👀</span>
+                                        詳しく見る
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="bg-white rounded-3xl shadow-lg p-8 text-center border-2 border-orange-200">
+                            <div className="mb-6">
+                                <span className="text-5xl mb-4 block">✨</span>
+                                <h3 className="text-3xl text-gray-700 font-bold mb-4">
+                                    参加できるサークルが見つかりませんでした
+                                </h3>
+                                <p className="text-2xl text-gray-600 mb-6">
+                                    新しいサークルを作って、あなたの好きな活動を始めてみませんか？
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={() => router.push('/create-circle')}
+                                className="w-full max-w-2xl mx-auto p-6 bg-gradient-to-r from-green-500 to-green-600 
+                                         text-white text-2xl rounded-2xl hover:from-green-600 
+                                         hover:to-green-700 transition-all duration-200 flex 
+                                         items-center justify-center shadow-lg"
+                            >
+                                <span className="text-3xl mr-3">💫</span>
+                                新しいサークルを作成する
+                            </button>
+
+                            <p className="text-xl text-gray-500 mt-6">
+                                また後で参加できるサークルをチェックすることもできます
+                            </p>
+                        </div>
+                    )}
+                </div>
+
+                {/* サークル作成案内 */}
+                <div className="bg-white rounded-3xl shadow-lg p-8 mb-8 border-2 border-green-200">
+                    <div className="text-center">
+                        <h2 className="text-3xl font-bold text-gray-800 mb-4 flex items-center justify-center">
+                            <span className="text-4xl mr-3">💫</span>
+                            自分の好きなサークルを作ってみませんか？
+                        </h2>
+                        <p className="text-2xl text-gray-600 mb-6">
+                            あなたの興味や趣味を活かして、新しいコミュニティを始めましょう
+                        </p>
                         <button
-                            onClick={() => router.push('/home')}
-                            className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                            onClick={() => router.push('/create-circle')}
+                            className="px-12 py-4 bg-gradient-to-r from-green-500 to-green-600 
+                     text-white text-2xl rounded-2xl hover:from-green-600 
+                     hover:to-green-700 transition-all duration-200 flex 
+                     items-center justify-center mx-auto shadow-lg"
                         >
-                            ホームに戻る
+                            <span className="text-3xl mr-2">✨</span>
+                            サークルを作成する
                         </button>
                     </div>
+                </div>
+
+                {/* 戻るボタン */}
+                <div className="mt-8 text-center">
+                    <button
+                        onClick={() => router.push('/home')}
+                        className="px-12 py-4 text-2xl text-gray-700 bg-white rounded-2xl 
+                                 hover:bg-gray-50 transition-colors duration-200 flex items-center 
+                                 justify-center mx-auto border-2 border-orange-200"
+                    >
+                        <span className="text-3xl mr-2">🏠</span>
+                        ホームに戻る
+                    </button>
                 </div>
             </div>
         </div>

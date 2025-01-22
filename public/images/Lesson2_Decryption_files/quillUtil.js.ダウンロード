@@ -1,0 +1,305 @@
+/*
+ * Quillを使う場合は下記のjsとcssを参照してください。
+ * このユーティリティはjQueryにも依存しています。
+ *
+ * <link href="/css/katex.min.css" th:href="@{/css/katex.min.css}" rel="stylesheet"></link>
+ * <link href="/css/quill.snow.css" th:href="@{/css/quill.snow.css}" rel="stylesheet"></link>
+ * <script src="/js/katex.min.js" th:src="@{/js/katex.min.js}"></script>
+ * <script src="/js/quill.min.js" th:src="@{/js/quill.min.js}"></script>
+ *
+ */
+var QuillUtil = function(containerId, readOnlyMode, dataMaxSize, sizeCounterId) {
+
+	var _self = this;
+	var _editor = null;		//Quillエディタのインスタンス
+	var _editorId = null;		//QuillエディタタグのID
+	var _maxDataLength = null;	//Quillエディタに設定された最大文字列長(MB単位)
+	var _readOnlyMode = null;
+	var _sizeCounterId = null;
+
+	//Quillエディタの内容をあらわすJSON文字列のバイト長を取得します
+	_self.getDataByte = function() {
+		return encodeURIComponent(JSON.stringify(_editor.getContents())).replace(/%../g, "x").length;
+	}
+
+	//Quillエディタの内容をあらわすJSON文字列のバイト長をMB単位で取得します
+	_self.getDataByteMB = function() {
+		return _self.getDataByte() / 1048576;
+	}
+
+	//Quillエディタに設定された最大データ長を超えているかどうかの判定
+	_self.isOverMaxLength = function() {
+
+		if (_maxDataLength) {
+
+			return _self.getDataByteMB() > _self.maxDataLength;
+
+		} else {
+			//最大長が設定されていなかったら常にfalse
+			return false;
+		}
+
+	}
+
+	//Quillエディタを生成します
+	//  containerId   Quillエディタを生成したいタグのID
+	//  readOnlyMode  読み取り専用にしたいときtrue
+	//  dataMaxSize   エディタの最大データ長 MB単位（省略可能）
+	//  sizeCounterId エディタのデータ長を表示したいタグのID（省略可能）
+	var _createEditor = function(containerId, readOnlyMode, dataMaxSize, sizeCounterId) {
+
+		_editorId = containerId;
+		_readOnlyMode = readOnlyMode;
+		_maxDataLength = dataMaxSize;
+		_sizeCounterId = sizeCounterId;
+
+		var moduleSettings = null;
+		if (readOnlyMode) {
+			moduleSettings = {
+				toolbar: false
+			};
+		} else {
+			//ツールバーに表示するボタンを変更する場合はここを編集
+			moduleSettings = {
+				toolbar: [
+
+					[{ 'font': [] }],
+
+					[{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+
+					['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+
+					[{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+
+					[{ 'script': 'sub' }, { 'script': 'super' }],      // superscript/subscript
+
+					[{ 'header': 1 }, { 'header': 2 }],               // custom button values
+					['blockquote', 'code-block'],
+
+					[{ 'list': 'ordered' }, { 'list': 'bullet' }],
+					[{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
+
+					[{ 'direction': 'rtl' }],                         // text direction
+					[{ 'align': [] }],
+
+					[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+					['link', 'formula'],
+
+					['clean']                                         // remove formatting button
+
+				]
+			};
+		}
+
+		_editor = new Quill('#' + containerId, {
+			modules: moduleSettings,
+			readOnly: readOnlyMode,
+			theme: 'snow'
+		});
+
+		//サイズのカウントを行う場合
+		if (sizeCounterId) {
+			var mb = '';
+			var decimal = '0';
+
+			var baseString = mb
+
+			$('#' + sizeCounterId).text(decimal + baseString);
+
+			_editor.on('text-change', function(delta, oldDelta, source) {
+				var dataLength = _getDataSize();
+
+				var counter = $('#' + sizeCounterId);
+				counter.text(dataLength + baseString);
+
+				//最大長オーバーしたら赤文字にする
+				if (dataMaxSize != null && dataLength > dataMaxSize) {
+					counter.css("color", "red");
+				} else {
+					counter.css("color", "");
+				}
+
+			});
+
+		}
+
+	}
+
+	//Quillエディタの内容をJSON形式の文字列で取得します。
+	_self.getJsonData = function() {
+		return JSON.stringify(_editor.getContents());
+	}
+
+	//Quillエディタの内容をHTML形式の文字列で取得します。
+	_self.getHtmlData = function() {
+		return $('#' + _editorId).html();
+	}
+
+	//Quillエディタの内容をHTML形式の文字列で取得します。
+	_self.getTextData = function() {
+		var str = _editor.getText();
+		// 末尾の改行コードの削除
+		str = str.replace(new RegExp('\\n$'), '');
+		return str;
+	}
+
+	//Quillエディタの内容を文字列で取得します。
+	var _getDataSize = function() {
+		return _editor.getLength() - 1;
+	}
+
+	//Quillエディタの内容を文字列で取得します。
+	_self.getDataSize = function() {
+		return _editor.getLength()-1;
+	}
+
+	_self.onlyNumber = /^\d+$/;
+	_self.dummyEmbeddedUrl = location.href + '/embedded/';
+
+	//JSON形式文字列をQuillエディタにセットします
+	_self.setJsonData = function(jsonStr, mode) {
+		var obj = null;
+
+		if (mode) {
+			if (mode == 'confirm') {
+				//確認画面での表示
+				obj = JSON.parse(jsonStr, function(key, value) {
+
+					//数字のみのリンクを変換して表示する
+					if (key == 'link' && _self.onlyNumber.test(value)) {
+						return "about:blank";
+					}
+
+					return value;
+
+				});
+			} else if (mode == 'reference') {
+				//参照画面での表示
+				obj = JSON.parse(jsonStr, function(key, value) {
+
+					//後ほどclickイベントを差し替えるためにマークする
+					if (key == 'link' && _self.onlyNumber.test(value)) {
+						//ありえないURLに置き換え
+						return _self.dummyEmbeddedUrl + value;
+					}
+
+					return value;
+
+				});
+			}
+		} else {
+			obj = JSON.parse(jsonStr);
+		}
+
+		_editor.setContents(obj);
+	}
+
+	//末尾にリンクテキストを挿入する
+	_self.AppendLink = function(text, url) {
+		_editor.insertText(_editor.getLength(), text, {
+			'link': url
+		});
+	}
+
+	//埋め込みリンクを参照画面用に置き換える
+	_self.EmbeddedLinkClickEvent = function(attachementId) { };
+	_self.setEmbeddedLinkForReference = function() {
+
+		//本文中の埋め込みリンクをすべて変更する
+		$('#' + _editorId + ' .ql-editor a').each(function(index, element) {
+
+			var e = $(element);
+
+			var href = e.prop('href');
+
+			//数字だけのURLのみ置き換える
+			if (href.lastIndexOf(_self.dummyEmbeddedUrl, 0) === 0) {
+				e.attr('href', 'about:blank');
+				e.click(function(e) {
+					e.preventDefault();
+					_self.EmbeddedLinkClickEvent(href.replace(_self.dummyEmbeddedUrl, ''));
+				});
+			}
+
+		});
+
+	};
+
+	//埋め込み画像の数を設定
+	_self.countImage = function() {
+
+		var imageCount = 0;
+
+		JSON.parse(_self.getJsonData(), function(key, value) {
+			//後ほどclickイベントを差し替えるためにマークする
+			if (key == 'image') {
+				imageCount++;
+			}
+		});
+
+		return imageCount;
+	};
+
+	//メンバをクリア
+	_self.destroy = function() {
+		_editor = null;
+		_editorId = null;
+		_maxDataLength = null;
+
+	};
+
+	// 非活性化
+	_self.disable = function() {
+		_editor.disable();
+		$(_editorId).addClass("disabled");
+	};
+
+	// 活性化
+	_self.enable = function() {
+		_editor.enable();
+		$(_editorId).removeClass("disabled");
+	};
+
+	// 末尾にテキスト追加
+	_self.addText = function(text) {
+		_editor.insertText(_editor.getLength(), text);
+	}
+
+	// 末尾にテキスト追加
+	_self.addCusorText = function(index, text) {
+		_editor.insertText(index, text);
+	}
+
+	// カーソル位置を取得
+	_self.getSelection = function(focus = false) {
+		if (focus) this.focus();
+
+    	var index = _editor.selection.savedRange.index;
+    	return index;
+	}
+
+	// Quillを再生成する
+	_self.resetEditor = function(id) {
+		$('#' + id).parent().find("[class^='ql-']").remove();
+		_createEditor(id, _readOnlyMode, _maxDataLength, _sizeCounterId);
+	}
+
+	// 穴埋め用html取得
+	_self.getHtmlDataForInbox = function() {
+
+		let index = 0;
+		$('#' + _editorId).html($('#' + _editorId).html().replace(/\[fb\]/g, function() {
+			let replaceStr = "<input type='text' class='text vShort disabled' disabled='' id='" + _editorId + "_" + index + "' >";
+			index++;
+			return replaceStr;
+		}));
+
+
+	}
+
+	_createEditor(containerId, readOnlyMode, dataMaxSize, sizeCounterId);
+
+	return _self;
+
+}

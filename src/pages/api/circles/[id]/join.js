@@ -24,13 +24,40 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: 'すでにこのサークルに参加しています' });
         }
 
-        // 参加者として追加
-        await pool.query(
-            'INSERT INTO circle_members (circle_id, user_id) VALUES (?, ?)',
-            [id, user.userId]
-        );
+        // トランザクション開始
+        await pool.query('START TRANSACTION');
 
-        res.status(200).json({ message: 'サークルに参加しました' });
+        try {
+
+            // 参加者として追加
+            await pool.query(
+                'INSERT INTO circle_members (circle_id, user_id) VALUES (?, ?)',
+                [id, user.userId]
+            );
+
+            // サークルの既存の寄合を取得
+            const [gatherings] = await pool.query(
+                'SELECT id FROM gatherings WHERE circle_id = ? AND datetime > NOW()',
+                [id]
+            );
+
+            // 各寄合に新しいメンバーを招待状態で追加
+            for (const gathering of gatherings) {
+                await pool.query(
+                    'INSERT INTO gathering_participants (gathering_id, user_id, status) VALUES (?, ?, ?)',
+                    [gathering.id, user.userId, 'invited']
+                );
+            }
+
+            // トランザクションをコミット
+            await pool.query('COMMIT');
+
+            res.status(200).json({ message: 'サークルに参加し、既存の寄合にも招待されました' });
+        } catch (error) {
+            // エラーが発生した場合、トランザクションをロールバック
+            await pool.query('ROLLBACK');
+            throw error;
+        }
     } catch (error) {
         console.error('Error in join circle API:', error);
         res.status(500).json({ message: 'サーバーエラーが発生しました' });

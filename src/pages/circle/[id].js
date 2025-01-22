@@ -63,6 +63,16 @@ export default function CircleDetail() {
         router.push(`/circle/edit/${id}`);
     };
 
+    const getGenreIcon = (genre) => {
+        switch (genre) {
+            case 'スポーツ': return '⚽';
+            case '音楽': return '🎵';
+            case '芸術': return '🎨';
+            case '学習': return '📚';
+            default: return '✨';
+        }
+    };
+
     const handleLeave = async () => {
         if (confirm('本当にこのサークルから脱退しますか？')) {
             try {
@@ -108,64 +118,134 @@ export default function CircleDetail() {
         }
     };
 
-    if (error) return <div className="text-red-500">{error}</div>;
-    if (!circle) return <div>Loading...</div>;
+    if (error) return (
+        <div className="min-h-screen bg-orange-50 p-6">
+            <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-lg p-8">
+                <p className="text-2xl text-red-600 text-center">
+                    <span className="text-3xl mr-2">⚠️</span>
+                    {error}
+                </p>
+                <button
+                    onClick={() => router.back()}
+                    className="mt-6 px-8 py-3 bg-gray-100 text-xl rounded-xl mx-auto block hover:bg-gray-200"
+                >
+                    戻る
+                </button>
+            </div>
+        </div>
+    );
+
+    if (!circle) return (
+        <div className="min-h-screen bg-orange-50 p-6">
+            <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-lg p-8">
+                <p className="text-2xl text-center">読み込み中です...</p>
+            </div>
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
-            <div className="relative py-3 sm:max-w-xl sm:mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-light-blue-500 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
-                <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
-                    <div className="max-w-md mx-auto">
-                        <h2 className="text-2xl font-semibold mb-4">{circle.name}</h2>
-                        <p>テーマ: {circle.theme}</p>
-                        <p>ジャンル: {circle.genre}</p>
-                        <p>対象性別: {circle.gender}</p>
-                        <p>詳細: {circle.details}</p>
+        <div className="min-h-screen bg-orange-50 p-6">
+            <div className="max-w-4xl mx-auto">
+                {/* サークル情報カード */}
+                <div className="bg-white rounded-3xl shadow-lg p-8 mb-6 border-2 border-orange-200">
+                    <div className="flex items-center justify-center mb-6">
+                        <span className="text-5xl mr-4">{getGenreIcon(circle.genre)}</span>
+                        <h1 className="text-4xl font-bold text-gray-800">{circle.name}</h1>
+                    </div>
 
-                        <h3 className="text-xl font-semibold mt-6 mb-2">メンバー一覧</h3>
-                        <ul className="list-disc pl-5">
-                            {members.map((member) => (
-                                <li key={member.id}>{member.display_name}</li>
-                            ))}
-                        </ul>
+                    <div className="space-y-6 text-2xl">
+                        <div className="bg-orange-50 p-6 rounded-2xl">
+                            <p className="mb-4">
+                                <span className="font-bold">テーマ：</span>
+                                <span className="text-gray-700">{circle.theme}</span>
+                            </p>
+                            <p className="mb-4">
+                                <span className="font-bold">ジャンル：</span>
+                                <span className="text-gray-700">{circle.genre}</span>
+                            </p>
+                            <p>
+                                <span className="font-bold">対象：</span>
+                                <span className="text-gray-700">{circle.gender}</span>
+                            </p>
+                        </div>
 
-                        {!isMember && (
-                            <button
-                                onClick={handleJoin}
-                                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                            >
-                                サークルに参加する
-                            </button>
-                        )}
-
-                        {isCreator && (
-                            <div className="mt-4">
-                                <button
-                                    onClick={() => router.push(`/circle/edit/${id}`)}
-                                    className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                                >
-                                    編集
-                                </button>
+                        {circle.details && (
+                            <div className="bg-blue-50 p-6 rounded-2xl">
+                                <h2 className="font-bold mb-2">サークル活動について</h2>
+                                <p className="text-gray-700">{circle.details}</p>
                             </div>
                         )}
-
-                        {isMember && !isCreator && (
-                            <button
-                                onClick={handleLeave}
-                                className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                            >
-                                サークルから脱退
-                            </button>
-                        )}
-
-                        <button
-                            onClick={() => router.back()}
-                            className="mt-4 ml-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                        >
-                            戻る
-                        </button>
                     </div>
+                </div>
+
+                {/* メンバー一覧カード */}
+                <div className="bg-white rounded-3xl shadow-lg p-8 mb-6 border-2 border-orange-200">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center justify-center">
+                        <span className="text-4xl mr-3">👥</span>
+                        メンバー
+                        <span className="ml-3 text-2xl text-gray-500">({members.length}人)</span>
+                    </h2>
+                    <div className="grid grid-cols-2 gap-4">
+                        {members.map((member) => (
+                            <div key={member.id}
+                                className="bg-gray-50 p-4 rounded-xl text-xl text-gray-700 flex items-center">
+                                <span className="text-2xl mr-3">👤</span>
+                                {member.display_name}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* アクションボタン */}
+                <div className="space-y-4">
+                    {!isMember && (
+                        <button
+                            onClick={handleJoin}
+                            className="w-full p-4 bg-gradient-to-r from-green-500 to-green-600 
+                                     text-white text-2xl rounded-2xl hover:from-green-600 
+                                     hover:to-green-700 transition-all duration-200 flex 
+                                     items-center justify-center shadow-lg"
+                        >
+                            <span className="text-3xl mr-3">🤝</span>
+                            このサークルに参加する
+                        </button>
+                    )}
+
+                    {isCreator && (
+                        <button
+                            onClick={() => router.push(`/circle/edit/${id}`)}
+                            className="w-full p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 
+                                     text-white text-2xl rounded-2xl hover:from-yellow-600 
+                                     hover:to-yellow-700 transition-all duration-200 flex 
+                                     items-center justify-center shadow-lg"
+                        >
+                            <span className="text-3xl mr-3">✏️</span>
+                            サークル情報を編集する
+                        </button>
+                    )}
+
+                    {isMember && !isCreator && (
+                        <button
+                            onClick={handleLeave}
+                            className="w-full p-4 bg-gradient-to-r from-red-500 to-red-600 
+                                     text-white text-2xl rounded-2xl hover:from-red-600 
+                                     hover:to-red-700 transition-all duration-200 flex 
+                                     items-center justify-center shadow-lg"
+                        >
+                            <span className="text-3xl mr-3">👋</span>
+                            サークルを退会する
+                        </button>
+                    )}
+
+                    <button
+                        onClick={() => router.back()}
+                        className="w-full p-4 bg-gray-100 text-gray-700 text-2xl rounded-2xl 
+                                 hover:bg-gray-200 transition-all duration-200 flex items-center 
+                                 justify-center shadow-lg border-2 border-gray-200"
+                    >
+                        <span className="text-3xl mr-3">⬅️</span>
+                        前の画面に戻る
+                    </button>
                 </div>
             </div>
         </div>

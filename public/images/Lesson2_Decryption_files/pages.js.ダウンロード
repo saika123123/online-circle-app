@@ -1,0 +1,168 @@
+$(function(){
+
+	/*Side Menu Close*/
+	$("#sidemenuClose").click(function(){
+		$("#sidemenu").toggleClass('sidemenu-close');
+		$("#sidemenuOpen").toggleClass('sidemenu-open');
+		$("#pageMain").addClass("sidemenu-hide");
+		$("#top_banner").removeClass("portal-banner-subblock-sidemenu");
+		$("#top_banner").addClass("portal-banner-subblock");
+		$("#top_links").addClass("portal-subblock-float");
+		$("#top_links").removeClass("portal-subblock-float-sidemenu");
+
+		$(".portal-subblock-float-sidemenu > div").heightLine({
+			minWidth:1615
+		});
+
+		$(".portal-subblock-float > div").heightLine({
+			minWidth:960
+		});
+		$("#top_notice").addClass("relation-link");
+		$("#top_notice").removeClass("relation-link-sidemenu");
+	    setTimeout(function(){
+	    	$("#message > div").heightLine("refresh");
+			$("#information > div").heightLine("refresh");
+			$("#report > div").heightLine("refresh");
+			$("#courseContent > div").heightLine("refresh");
+			$("#examination > div").heightLine("refresh");
+			$("#questionnaire > div").heightLine("refresh");
+			$("#discussion > div").heightLine("refresh");
+			$("#externalActivity > div").heightLine("refresh");
+			$("#attendance > div").heightLine("refresh");
+			$("#ltiOutsideToolEdit > div").heightLine("refresh");
+			$("#ltiOutsideToolView > div").heightLine("refresh");
+			$("#sidemenu,#pageMain").heightLine("refresh");
+	    },300);
+	});
+
+	/*Side Menu Open*/
+	$("#sidemenuOpen").click(function(){
+		$("#sidemenu").toggleClass('sidemenu-close');
+		$("#sidemenuOpen").toggleClass('sidemenu-open');
+		$("#pageMain").removeClass("sidemenu-hide");
+		$("#top_banner").removeClass("portal-banner-subblock");
+		$("#top_banner").addClass("portal-banner-subblock-sidemenu");
+		$("#top_links").removeClass("portal-subblock-float");
+		$("#top_links").addClass("portal-subblock-float-sidemenu");
+		$(".portal-subblock-float-sidemenu > div").heightLine({
+			minWidth:1615
+		});
+		$(".portal-subblock-float > div").heightLine({
+			minWidth:960
+		});
+		$("#top_notice").removeClass("relation-link");
+		$("#top_notice").addClass("relation-link-sidemenu");
+		/*TODO 教材がうまく調整されない*/
+	    setTimeout(function(){
+	    	$("#message > div").heightLine("refresh");
+			$("#information > div").heightLine("refresh");
+			$("#report > div").heightLine("refresh");
+			$("#courseContent > div").heightLine("refresh");
+			$("#examination > div").heightLine("refresh");
+			$("#questionnaire > div").heightLine("refresh");
+			$("#discussion > div").heightLine("refresh");
+			$("#externalActivity > div").heightLine("refresh");
+			$("#attendance > div").heightLine("refresh");
+			$("#ltiOutsideToolEdit > div").heightLine("refresh");
+			$("#ltiOutsideToolView > div").heightLine("refresh");
+			$("#sidemenu,#pageMain").heightLine("refresh");
+	    },300);
+	});
+
+	/*Side Menu Pulldown*/
+	$(".sidemenu-pull").click(function(){
+		clickedPulldown = $(this).attr("id");
+		targetList = clickedPulldown.replace("sidemenuPull", "sidemenuList");
+		$("#" + targetList).find(".sidemenu-list").find(".sidemenu-list-colomn").toggleClass("pulldown-close");
+		$(this).toggleClass("sidemenu-pull-down");
+		$("#sidemenu,#pageMain").heightLine("refresh");
+	});
+
+	/*Anchor Link*/ /*180614change*/
+	$('a[href^="#"]').click(function() {
+		clickedLink= $(this).attr("href");
+		targetAnchor = $(clickedLink == "#" || clickedLink == "" ? 'html' : clickedLink);
+		windowWidth = $(window).width();
+		if(windowWidth > 480){
+			anchorPosition = targetAnchor.offset().top - 59;
+		}else{
+			anchorPosition = targetAnchor.offset().top - 56;
+		};
+		$("html,body").animate({scrollTop:anchorPosition});
+	});
+
+	/*Sub Block Circle Button for iPhone*/
+	if ( navigator.userAgent.indexOf('iPhone') > 0 ) {
+		$(".subblock_btn_circle").addClass("iPhone");
+	};
+
+})
+
+/*Header Navi SP Close for PC Size*/
+$(window).resize(function() {
+	windowWidth = $(window).width();
+	if(windowWidth > 480){
+		//時間割画面が表示されている場合は、表示の曜日を変更
+		if($("#timetableSelectYobiForSmart").length){
+			$("[class$='-yobicol']").show();
+		}
+	}else{
+		if($("#timetableSelectYobiForSmart").length){
+			$("#timetableSelectYobiForSmart").change();
+		}
+	}
+
+});
+
+//画像ロード後に高さを再描画
+$(function(){
+	var images = document.getElementsByTagName('img');
+	for (var i = 0; i < images.length; i++) {
+	    var img = new Image();
+	    img.onload = function() {
+	    	$("#sidemenu,#pageMain").heightLine("refresh");
+	    }
+	    img.src = images[i].src;
+	};
+});
+
+function openCloseSideMenu(){
+	$("#sidemenu").toggleClass('sidemenu-close');
+	$("#pageMain").toggleClass("sidemenu-hide");
+	$("#top_banner").toggleClass("portal-banner-subblock-sidemenu");
+	$("#top_banner").toggleClass("portal-banner-subblock");
+	$("#top_links").toggleClass("portal-subblock-float-sidemenu");
+	$("#header-logo").toggleClass("page-head-logo-invisible");
+	$("#sidemenuOpen").toggleClass('sidemenu-open');
+	$(".header-close-icon").toggleClass("global-contents-hidden");
+}
+
+//左メニューのリンクを押した時にそのままコーストップに遷移する
+function sidemenuLinkMaker(idnumber,selectDisplayView,tag){
+	var hrefText ="/lms/course?idnumber=" + idnumber;
+	hrefText += "#" + tag;
+	window.location.href= hrefText;
+}
+function portalHomeAnchor(clickedLink){
+
+	var path = location.pathname;
+	if(path != "portal/home"){
+		window.location.hash = clickedLink;
+		window.location.pathname = "portal/home";
+	}
+
+	windowWidth = $(window).width();
+	if(windowWidth > 480){
+	}else{
+		$('#sidemenuClose').trigger('click');
+	}
+
+	targetAnchor = $(clickedLink == "#" || clickedLink == "" ? 'html' : clickedLink);
+	windowWidth = $(window).width();
+	if(windowWidth > 480){
+		anchorPosition = targetAnchor.offset().top - 59;
+	}else{
+		anchorPosition = targetAnchor.offset().top - 59;
+	};
+	$("html,body").animate({scrollTop:anchorPosition});
+}

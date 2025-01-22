@@ -2,6 +2,7 @@ import pool from '../../../../lib/db';
 import verifyToken from '../../../../utils/auth';
 
 export default async function handler(req, res) {
+    console.log('Edit gathering API called');
     const user = verifyToken(req);
     if (!user) {
         return res.status(401).json({ message: '認証が必要です' });
@@ -11,6 +12,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'PUT') {
         const { theme, datetime, details } = req.body;
+        console.log('Received data:', { theme, datetime, details });
 
         try {
             // 寄合の所有者確認
@@ -29,7 +31,14 @@ export default async function handler(req, res) {
                 [theme, datetime, details, id]
             );
 
-            res.status(200).json({ message: '寄合が正常に更新されました' });
+            // 更新された寄合の情報を取得
+            const [updatedGathering] = await pool.query(
+                'SELECT * FROM gatherings WHERE id = ?',
+                [id]
+            );
+
+            console.log('Updated gathering:', updatedGathering[0]);
+            res.status(200).json({ message: '寄合が正常に更新されました', gathering: updatedGathering[0] });
         } catch (error) {
             console.error('Error in edit gathering API:', error);
             res.status(500).json({ message: 'サーバーエラーが発生しました' });

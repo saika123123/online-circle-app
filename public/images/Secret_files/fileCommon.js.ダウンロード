@@ -1,0 +1,93 @@
+
+var FileCommon = (function() {
+	var me = {};
+
+	me.setFileSelect = function(blockArea, selectButton, hiddenButton, fileNameArea, hiddenFileName) {
+
+		var block = "." + blockArea;
+
+		// 参照ボタン押下時のクリック先を変更
+		$("." + selectButton).off("click");
+		$("." + selectButton).click(function() {
+			$(this).closest(block).find("." + hiddenButton).click();
+		});
+
+		// 参照ファイルが変更された時の処理を設定
+		$("." + hiddenButton).off("change");
+		$("." + hiddenButton).on("change", function() {
+
+			var file = this.files[0];
+			if(file !== null) {
+				$(this).closest(block).find("." + fileNameArea).text(file.name);
+				$(this).closest(block).find("." + hiddenFileName).val(file.name).change();
+			}
+		});
+	};
+
+	me.setFileClearAdd = function(blockArea, clearButton, addButton, addBlock, callback, dadFileArea) {
+
+		var block = "." + blockArea;
+
+		// 削除ボタンの処理を設定
+		$("." + clearButton).off("click");
+		$("." + clearButton).click(function(event) {
+			event.preventDefault();
+
+			// 最後の1件の場合は領域を追加してから削除する
+			var selector = block + ":not(#" + addBlock + ")";
+			if($(selector).length <= 1) {
+				$("." + addButton).click();
+			}
+
+			// 要素を削除
+			var removeBlock = $(this).closest(block);
+			if($("." + dadFileArea).length > 0){
+				// Drag&Dropエリアがある場合は、そのエリア情報も削除
+				var targetId = null;
+				var fileIdTag = removeBlock.find('input[name=fileId]');
+				if(fileIdTag.length > 0){
+					targetId = fileIdTag.val();
+				}
+				if(targetId != null && targetId != "" && targetId != "0"){
+					$("." + dadFileArea).each( function(index, dadElement) {
+						var dadFileIdTag = $(dadElement).find('input[name=fileId]');
+						if(dadFileIdTag.length > 0 	&& targetId == dadFileIdTag.val()){
+							$(dadElement).remove();
+							return false;
+						}
+					});
+				}
+			}
+			// 要素を削除
+			removeBlock.remove();
+
+			var clearClass = $(this).attr('class');
+			var clearItem = /messageDelete/;
+			var clearElemnt = clearClass.match(clearItem);
+			// 課題提出画面の取消ボタン
+			if ("messageDelete" == clearElemnt) {
+				clearMessage();
+			}
+		});
+
+		// 追加ボタンの処理を設定
+		$("." + addButton).off("click");
+		$("." + addButton).click(function(event) {
+			event.preventDefault();
+
+			// 追加エレメントを用意
+			var addBlockDefault = $("#" + addBlock);
+			var addElement = addBlockDefault.clone().removeAttr("id").css("display", "block");
+
+			// ブロックを追加
+			var selector = block + ":not(#" + addBlock + "):last";
+			$(selector).after(addElement);
+
+			if(callback) {
+				callback();
+			}
+		});
+	};
+
+	return me;
+}());

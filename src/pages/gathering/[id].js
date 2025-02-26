@@ -4,10 +4,8 @@ import { useEffect, useState } from 'react';
 export default function GatheringDetail() {
     const [gathering, setGathering] = useState(null);
     const [participants, setParticipants] = useState([]);
-    const [userStatus, setUserStatus] = useState(null);
     const [error, setError] = useState('');
     const [isCreator, setIsCreator] = useState(false);
-    const [isGatheringStarted, setIsGatheringStarted] = useState(false);
     const router = useRouter();
     const { id } = router.query;
 
@@ -17,24 +15,6 @@ export default function GatheringDetail() {
             fetchParticipants();
         }
     }, [id]);
-
-    useEffect(() => {
-        if (gathering) {
-            const checkGatheringStart = () => {
-                const now = new Date();
-                const gatheringTime = new Date(gathering.datetime);
-                const thirtyMinutesLater = new Date(gatheringTime.getTime() + 30 * 60000);
-                if (now >= gatheringTime && now < thirtyMinutesLater) {
-                    setIsGatheringStarted(true);
-                }
-            };
-
-            checkGatheringStart();
-            const intervalId = setInterval(checkGatheringStart, 60000); // 1分ごとにチェック
-
-            return () => clearInterval(intervalId);
-        }
-    }, [gathering]);
 
     const fetchGatheringDetail = async () => {
         try {
@@ -47,13 +27,13 @@ export default function GatheringDetail() {
             if (response.ok) {
                 const data = await response.json();
                 setGathering(data.gathering);
-                setUserStatus(data.userStatus);
-                setIsCreator(data.gathering.creator_id === JSON.parse(atob(token.split('.')[1])).userId);
+                const decoded = JSON.parse(atob(token.split('.')[1]));
+                setIsCreator(data.gathering.creator_id === decoded.userId);
             } else {
-                setError('寄合の詳細情報の取得に失敗しました');
+                setError('寄合の詳細情報を取得できませんでした');
             }
         } catch (error) {
-            setError('寄合の詳細情報の取得中にエラーが発生しました');
+            setError('寄合の詳細情報の取得中に問題が発生しました');
         }
     };
 
@@ -72,33 +52,7 @@ export default function GatheringDetail() {
                 setError('参加者情報の取得に失敗しました');
             }
         } catch (error) {
-            setError('参加者情報の取得中にエラーが発生しました');
-        }
-    };
-
-    const handleParticipation = async (status) => {
-        if (userStatus && !confirm(`参加状況を "${status}" に変更しますか？`)) {
-            return;
-        }
-
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`/api/gatherings/${id}/participate`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status })
-            });
-            if (response.ok) {
-                setUserStatus(status);
-                fetchParticipants();
-            } else {
-                setError('参加状況の更新に失敗しました');
-            }
-        } catch (error) {
-            setError('参加状況の更新中にエラーが発生しました');
+            setError('参加者情報の取得中に問題が発生しました');
         }
     };
 
@@ -108,147 +62,159 @@ export default function GatheringDetail() {
         }
     };
 
-    const handleEdit = () => {
-        router.push(`/gathering/edit/${id}`);
-    };
+    if (error) return (
+        <div className="min-h-screen bg-orange-50 p-6">
+            <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-lg p-8">
+                <div className="text-2xl text-red-600 text-center flex items-center justify-center">
+                    <span className="text-3xl mr-2">⚠️</span>
+                    {error}
+                </div>
+                <button
+                    onClick={() => router.back()}
+                    className="mt-6 px-8 py-3 bg-gray-100 text-xl rounded-xl mx-auto block hover:bg-gray-200"
+                >
+                    戻る
+                </button>
+            </div>
+        </div>
+    );
 
-    const handleDelete = async () => {
-        if (confirm('本当にこの寄合を削除しますか？')) {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`/api/gatherings/${id}/edit`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                if (response.ok) {
-                    router.push('/gathering-list');
-                } else {
-                    const data = await response.json();
-                    setError(data.message);
-                }
-            } catch (error) {
-                setError('寄合削除中にエラーが発生しました');
-            }
-        }
-    };
-
-    if (error) return <div className="text-red-500">{error}</div>;
-    if (!gathering) return <div>Loading...</div>;
+    if (!gathering) return (
+        <div className="min-h-screen bg-orange-50 p-6">
+            <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-lg p-8">
+                <p className="text-2xl text-center">読み込み中です...</p>
+            </div>
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-yellow-50 py-8 px-4 text-gray-800">
-            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8 border-4 border-blue-500">
-                {error && (
-                    <div className="text-red-600 text-2xl mb-6 font-bold bg-red-100 p-4 rounded-lg border-2 border-red-500">
-                        {error}
-                    </div>
-                )}
-                {!gathering ? (
-                    <div className="text-3xl font-bold text-center">読み込み中...</div>
-                ) : (
-                    <>
-                        <h1 className="text-4xl font-bold mb-8 text-center bg-blue-100 p-4 rounded-lg">
+        <div className="min-h-screen bg-orange-50 p-6">
+            <div className="max-w-4xl mx-auto">
+                {/* メイン情報カード */}
+                <div className="bg-white rounded-3xl shadow-lg p-8 mb-6 border-2 border-orange-200">
+                    <div className="text-center mb-8">
+                        <h1 className="text-4xl font-bold text-gray-800 mb-4 flex items-center justify-center">
+                            <span className="text-5xl mr-3">📅</span>
                             {gathering.theme}
                         </h1>
-                        <div className="space-y-6 text-2xl">
-                            <p className="bg-gray-100 p-4 rounded-lg">
-                                <span className="font-bold">日時:</span> {new Date(gathering.datetime).toLocaleString()}
-                            </p>
-                            <p className="bg-gray-100 p-4 rounded-lg">
-                                <span className="font-bold">サークル:</span> {gathering.circle_name}
-                            </p>
-                            <p className="bg-gray-100 p-4 rounded-lg">
-                                <span className="font-bold">詳細:</span> {gathering.details}
-                            </p>
-                            <p className="bg-gray-100 p-4 rounded-lg">
-                                <span className="font-bold">参加用URL:</span><br />
-                                {gathering.url ? (
-                                    <a href={gathering.url} target="_blank" rel="noopener noreferrer"
-                                        className="text-blue-600 hover:underline block mt-2 text-center bg-green-200 p-4 rounded-lg border-2 border-green-500">
-                                        ここをタップして参加する
-                                    </a>
-                                ) : '未設定'}
-                            </p>
-                            <p className="bg-gray-100 p-4 rounded-lg">
-                                <span className="font-bold">あなたの参加状況:</span><br />
-                                <span className="block mt-2 text-center text-3xl font-bold">
-                                    {userStatus === 'accepted' ? '参加予定' :
-                                        userStatus === 'declined' ? '不参加' : '未回答'}
-                                </span>
-                            </p>
+                        <p className="text-2xl text-gray-600">
+                            {gathering.circle_name}のオンライン寄合
+                        </p>
+                    </div>
+
+                    {/* 寄合の詳細情報 */}
+                    <div className="space-y-6 text-2xl">
+                        <div className="bg-blue-50 p-6 rounded-2xl flex items-center">
+                            <span className="text-3xl mr-3">🕒</span>
+                            <div>
+                                <p className="font-bold text-gray-800">開催日時</p>
+                                <p className="text-gray-700">
+                                    {new Date(gathering.datetime).toLocaleString('ja-JP', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        weekday: 'long'
+                                    })}
+                                </p>
+                            </div>
                         </div>
 
-                        <div className="mt-12 space-y-6">
-                            <button
-                                onClick={() => handleParticipation('accepted')}
-                                className={`w-full py-6 text-3xl font-bold rounded-xl ${userStatus === 'accepted'
-                                    ? 'bg-green-300 text-green-800 cursor-not-allowed'
-                                    : 'bg-green-500 text-white hover:bg-green-600 active:bg-green-700'
-                                    }`}
-                                disabled={userStatus === 'accepted'}
-                            >
-                                参加する
-                            </button>
-                            <button
-                                onClick={() => handleParticipation('declined')}
-                                className={`w-full py-6 text-3xl font-bold rounded-xl ${userStatus === 'declined'
-                                    ? 'bg-red-300 text-red-800 cursor-not-allowed'
-                                    : 'bg-red-500 text-white hover:bg-red-600 active:bg-red-700'
-                                    }`}
-                                disabled={userStatus === 'declined'}
-                            >
-                                参加しない
-                            </button>
-                        </div>
-
-                        <h2 className="text-3xl font-bold mt-16 mb-6 text-center bg-blue-100 p-4 rounded-lg">参加者一覧</h2>
-                        <ul className="space-y-4 text-2xl">
-                            {participants.map((participant) => (
-                                <li key={participant.id} className="flex items-center justify-between bg-gray-100 p-4 rounded-lg">
-                                    <span>{participant.display_name}</span>
-                                    <span className={`px-4 py-2 rounded-full ${participant.status === 'accepted' ? 'bg-green-200 text-green-800' :
-                                        participant.status === 'declined' ? 'bg-red-200 text-red-800' :
-                                            'bg-yellow-200 text-yellow-800'
-                                        }`}>
-                                        {participant.status === 'accepted' ? '参加' :
-                                            participant.status === 'declined' ? '不参加' : '未回答'}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-
-                        {isCreator && (
-                            <div className="mt-8">
-                                <button
-                                    onClick={() => router.push(`/gathering/edit/${id}`)}
-                                    className="px-6 py-3 bg-yellow-500 text-white text-xl font-bold rounded-xl hover:bg-yellow-600 active:bg-yellow-700"
-                                >
-                                    編集
-                                </button>
+                        {gathering.details && (
+                            <div className="bg-green-50 p-6 rounded-2xl">
+                                <div className="flex items-center mb-2">
+                                    <span className="text-3xl mr-3">📝</span>
+                                    <p className="font-bold text-gray-800">詳細情報</p>
+                                </div>
+                                <p className="text-gray-700 ml-11">{gathering.details}</p>
                             </div>
                         )}
 
-                        <button
-                            onClick={() => router.push('/gathering-list')}
-                            className="mt-16 w-full py-6 bg-blue-500 text-white text-3xl font-bold rounded-xl hover:bg-blue-600 active:bg-blue-700"
-                        >
-                            寄合一覧に戻る
-                        </button>
-                    </>
-                )}
-                {isGatheringStarted && gathering.url && (
-                    <div className="mt-8 bg-yellow-100 p-4 rounded-lg border-2 border-yellow-500">
-                        <p className="text-2xl font-bold text-center">寄合が始まりました！</p>
-                        <button
-                            onClick={handleJoinGathering}
-                            className="mt-4 w-full py-4 bg-green-500 text-white text-2xl font-bold rounded-xl hover:bg-green-600 active:bg-green-700"
-                        >
-                            寄合に参加する
-                        </button>
+                        {gathering.url && (
+                            <div className="bg-purple-50 p-6 rounded-2xl">
+                                <div className="text-center mb-4">
+                                    <h3 className="text-2xl font-bold text-gray-800 flex items-center justify-center">
+                                        <span className="text-3xl mr-2">🎥</span>
+                                        オンライン寄合に参加する
+                                    </h3>
+                                    <p className="text-xl text-gray-600 mt-2">
+                                        開催時刻になりましたら、下のボタンから参加できます
+                                    </p>
+                                </div>
+
+                                <button
+                                    onClick={handleJoinGathering}
+                                    className="w-full p-6 bg-gradient-to-r from-green-500 to-green-600 
+                     text-white rounded-xl hover:from-green-600 hover:to-green-700 
+                     transition-all duration-200 flex flex-col items-center 
+                     justify-center shadow-lg transform hover:scale-105"
+                                >
+                                    <div className="text-4xl mb-2">
+                                        👥 💻
+                                    </div>
+                                    <div className="text-2xl font-bold">
+                                        タップして寄合に参加する
+                                    </div>
+                                    <div className="text-lg text-green-100 mt-1">
+                                        新しい画面が開きます
+                                    </div>
+                                </button>
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
+
+                {/* 参加者一覧 */}
+                <div className="bg-white rounded-3xl shadow-lg p-8 mb-6 border-2 border-orange-200">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center justify-center">
+                        <span className="text-4xl mr-3">👥</span>
+                        参加予定のメンバー
+                        <span className="ml-3 text-2xl text-gray-500">
+                            ({participants.filter(p => p.status === 'accepted').length}人)
+                        </span>
+                    </h2>
+                    <div className="grid grid-cols-2 gap-4">
+                        {participants
+                            .filter(p => p.status === 'accepted')
+                            .map((participant) => (
+                                <div key={participant.id}
+                                    className="bg-gray-50 p-4 rounded-xl text-xl text-gray-700 
+                                             flex items-center"
+                                >
+                                    <span className="text-2xl mr-3">👤</span>
+                                    {participant.display_name}
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
+                {/* 操作ボタン */}
+                <div className="space-y-4">
+                    {isCreator && (
+                        <button
+                            onClick={() => router.push(`/gathering/edit/${id}`)}
+                            className="w-full p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 
+                                     text-white text-2xl rounded-xl hover:from-yellow-600 
+                                     hover:to-yellow-700 transition-all duration-200 flex 
+                                     items-center justify-center shadow-lg"
+                        >
+                            <span className="text-3xl mr-2">✏️</span>
+                            寄合の情報を編集する
+                        </button>
+                    )}
+
+                    <button
+                        onClick={() => router.push('/gathering-list')}
+                        className="w-full p-4 bg-white text-gray-700 text-2xl rounded-xl 
+                                 hover:bg-gray-50 transition-all duration-200 flex items-center 
+                                 justify-center shadow-lg border-2 border-gray-200"
+                    >
+                        <span className="text-3xl mr-2">⬅️</span>
+                        寄合一覧に戻る
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -148,60 +148,44 @@ export default function Home() {
                 )}
 
                 {/* メインメニュー */}
-                <div className="grid grid-cols-1 gap-6 mb-12">
-                    <Link href="/check-circles" 
-                        className="block p-8 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 
-                                 text-white rounded-2xl shadow-lg transition-all duration-200 border-2 border-blue-400"
-                    >
-                        <div className="flex items-center text-3xl font-bold justify-center mb-2">
-                            <span className="text-4xl mr-3">👥</span>
-                            参加しているサークルを見る
+                <div className="grid grid-cols-2 gap-6 mb-12">
+                    <Link href="/check-circles"
+                        className="block p-8 bg-indigo-100 border-4 border-indigo-400 hover:bg-indigo-200 
+                 rounded-2xl shadow-lg transition-all duration-200">
+                        <div className="text-4xl font-bold text-center text-indigo-700">
+                            <div className="text-5xl mb-4">👥</div>
+                            参加サークルを見る
                         </div>
-                        <p className="text-xl text-center text-blue-100">
-                            仲間たちを見てみましょう
-                        </p>
                     </Link>
 
-                    <Link href="/join-circle" 
-                        className="block p-8 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 
-                                 text-white rounded-2xl shadow-lg transition-all duration-200 border-2 border-green-400"
-                    >
-                        <div className="flex items-center text-3xl font-bold justify-center mb-2">
-                            <span className="text-4xl mr-3">✨</span>
-                            新しいサークルに参加する
+                    <Link href="/join-circle"
+                        className="block p-8 bg-amber-100 border-4 border-amber-400 hover:bg-amber-200
+                 rounded-2xl shadow-lg transition-all duration-200">
+                        <div className="text-4xl font-bold text-center text-amber-700">
+                            <div className="text-5xl mb-4">✨</div>
+                            新しく参加する
                         </div>
-                        <p className="text-xl text-center text-green-100">
-                            新しい仲間と出会いましょう
-                        </p>
                     </Link>
 
-                    <Link href="/create-gathering" 
-                        className="block p-8 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 
-                                 text-white rounded-2xl shadow-lg transition-all duration-200 border-2 border-purple-400"
-                    >
-                        <div className="flex items-center text-3xl font-bold justify-center mb-2">
-                            <span className="text-4xl mr-3">📅</span>
-                            寄合を作成する
+                    <Link href="/create-gathering"
+                        className="block p-8 bg-teal-100 border-4 border-teal-400 hover:bg-teal-200
+                 rounded-2xl shadow-lg transition-all duration-200">
+                        <div className="text-4xl font-bold text-center text-teal-700">
+                            <div className="text-5xl mb-4">📅</div>
+                            寄合を作る
                         </div>
-                        <p className="text-xl text-center text-purple-100">
-                            楽しい時間を計画しましょう
-                        </p>
                     </Link>
 
-                    <Link href="/gathering-list" 
-                        className="block p-8 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 
-                                 text-white rounded-2xl shadow-lg transition-all duration-200 border-2 border-orange-400"
-                    >
-                        <div className="flex items-center text-3xl font-bold justify-center mb-2">
-                            <span className="text-4xl mr-3">📋</span>
-                            寄合一覧を見る
+                    <Link href="/gathering-list"
+                        className="block p-8 bg-rose-100 border-4 border-rose-400 hover:bg-rose-200
+                 rounded-2xl shadow-lg transition-all duration-200">
+                        <div className="text-4xl font-bold text-center text-rose-700">
+                            <div className="text-5xl mb-4">📋</div>
+                            寄合一覧
                         </div>
-                        <p className="text-xl text-center text-orange-100">
-                            予定されている集まりを確認しましょう
-                        </p>
                     </Link>
                 </div>
-
+                
                 {/* フッター部分 */}
                 <footer className="text-center">
                     <button

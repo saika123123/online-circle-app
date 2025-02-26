@@ -6,10 +6,11 @@ export default function CreateGathering() {
     const [selectedCircle, setSelectedCircle] = useState('');
     const [theme, setTheme] = useState('');
     const [date, setDate] = useState('');
-    const [time, setTime] = useState('');
+    const [time, setTime] = useState('00:00');
     const [details, setDetails] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
+    
 
     useEffect(() => {
         fetchUserCircles();
@@ -120,34 +121,127 @@ export default function CreateGathering() {
                             />
                         </div>
 
-                        {/* 日時選択 */}
+                        {/* 日時選択部分 */}
                         <div className="bg-purple-50 p-6 rounded-2xl">
                             <label className="text-2xl font-bold text-gray-700 mb-4 block flex items-center">
                                 <span className="text-3xl mr-2">🕒</span>
                                 開催日時を決める
                             </label>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-xl text-gray-600 mb-2">開催日</p>
-                                    <input
-                                        type="date"
-                                        required
-                                        className="w-full p-4 text-2xl border-2 border-purple-200 rounded-xl
-                                                 focus:border-purple-400 focus:ring focus:ring-purple-200"
-                                        value={date}
-                                        onChange={(e) => setDate(e.target.value)}
-                                    />
+
+                            {/* 日付選択 */}
+                            <div className="mb-6">
+                                <p className="text-xl text-gray-600 mb-4">開催日を選ぶ</p>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {/* 今日 */}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const today = new Date();
+                                            setDate(today.toISOString().split('T')[0]);
+                                        }}
+                                        className={`px-6 py-4 text-xl rounded-xl border-2 transition-colors duration-200 
+                         ${date === new Date().toISOString().split('T')[0]
+                                                ? 'bg-purple-200 border-purple-300'
+                                                : 'bg-white border-purple-200 hover:bg-purple-50'}`}
+                                    >
+                                        今日
+                                    </button>
+
+                                    {/* 明日 */}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const tomorrow = new Date();
+                                            tomorrow.setDate(tomorrow.getDate() + 1);
+                                            setDate(tomorrow.toISOString().split('T')[0]);
+                                        }}
+                                        className={`px-6 py-4 text-xl rounded-xl border-2 transition-colors duration-200 
+                         ${date === new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]
+                                                ? 'bg-purple-200 border-purple-300'
+                                                : 'bg-white border-purple-200 hover:bg-purple-50'}`}
+                                    >
+                                        明日
+                                    </button>
+
+                                    {/* 明後日 */}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const dayAfterTomorrow = new Date();
+                                            dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+                                            setDate(dayAfterTomorrow.toISOString().split('T')[0]);
+                                        }}
+                                        className={`px-6 py-4 text-xl rounded-xl border-2 transition-colors duration-200 
+                         ${date === new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0]
+                                                ? 'bg-purple-200 border-purple-300'
+                                                : 'bg-white border-purple-200 hover:bg-purple-50'}`}
+                                    >
+                                        明後日
+                                    </button>
+
+                                    {/* その他の日付 */}
+                                    <div className="relative">
+                                        <input
+                                            type="date"
+                                            value={date}
+                                            onChange={(e) => setDate(e.target.value)}
+                                            className="w-full p-4 text-xl border-2 border-purple-200 rounded-xl
+                             focus:border-purple-400 focus:ring focus:ring-purple-200"
+                                        />
+                                        <div className="absolute -top-3 left-4 bg-purple-50 px-2 text-sm text-gray-600">
+                                            その他の日付
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-xl text-gray-600 mb-2">開始時間</p>
-                                    <input
-                                        type="time"
-                                        required
-                                        className="w-full p-4 text-2xl border-2 border-purple-200 rounded-xl
-                                                 focus:border-purple-400 focus:ring focus:ring-purple-200"
-                                        value={time}
-                                        onChange={(e) => setTime(e.target.value)}
-                                    />
+                            </div>
+
+                            {/* 時間選択 */}
+                            <div>
+                                <p className="text-xl text-gray-600 mb-4">開始時間を選ぶ</p>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {/* 時間選択 */}
+                                    <div className="relative">
+                                        <select
+                                            className="w-full p-4 text-xl border-2 border-purple-200 rounded-xl
+                             focus:border-purple-400 focus:ring focus:ring-purple-200"
+                                            value={time.split(':')[0]}
+                                            onChange={(e) => {
+                                                const [_, minutes] = time.split(':');
+                                                setTime(`${e.target.value}:${minutes}`);
+                                            }}
+                                        >
+                                            {Array.from({ length: 24 }, (_, i) => (
+                                                <option key={i} value={String(i).padStart(2, '0')}>
+                                                    {String(i).padStart(2, '0')}時
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute -top-3 left-4 bg-purple-50 px-2 text-sm text-gray-600">
+                                            時
+                                        </div>
+                                    </div>
+
+                                    {/* 分選択 */}
+                                    <div className="relative">
+                                        <select
+                                            className="w-full p-4 text-xl border-2 border-purple-200 rounded-xl
+                             focus:border-purple-400 focus:ring focus:ring-purple-200"
+                                            value={time.split(':')[1]}
+                                            onChange={(e) => {
+                                                const [hours, _] = time.split(':');
+                                                setTime(`${hours}:${e.target.value}`);
+                                            }}
+                                        >
+                                            {Array.from({ length: 12 }, (_, i) => (
+                                                <option key={i} value={String(i * 5).padStart(2, '0')}>
+                                                    {String(i * 5).padStart(2, '0')}分
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute -top-3 left-4 bg-purple-50 px-2 text-sm text-gray-600">
+                                            分
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

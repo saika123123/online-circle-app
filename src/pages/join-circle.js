@@ -146,7 +146,7 @@ export default function JoinCircle() {
                             </div>
                         ))
                     ) : (
-                        <div className="bg-white rounded-3xl shadow-lg p-8 text-center border-2 border-orange-200">
+                        <div className="bg-white rounded-3xl shadow-lg p-8 text-center border-2 border-orange-200 ">
                             <div className="mb-6">
                                 <span className="text-5xl mb-4 block">✨</span>
                                 <h3 className="text-3xl text-gray-700 font-bold mb-4">
@@ -183,7 +183,7 @@ export default function JoinCircle() {
                             自分の好きなサークルを作ってみませんか？
                         </h2>
                         <p className="text-2xl text-gray-600 mb-6">
-                            あなたの興味や趣味を活かして、新しいコミュニティを始めましょう
+                            あなたの興味や趣味を活かして、新しいサークルを始めましょう
                         </p>
                         <button
                             onClick={() => router.push('/create-circle')}

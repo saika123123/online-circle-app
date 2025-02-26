@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export default function CreateCircle() {
+export default function EditCircle() {
     const [name, setName] = useState('');
     const [theme, setTheme] = useState('');
     const [genre, setGenre] = useState('');
@@ -9,6 +9,36 @@ export default function CreateCircle() {
     const [details, setDetails] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
+    const { id } = router.query;
+
+    useEffect(() => {
+        if (id) {
+            fetchCircleDetails();
+        }
+    }, [id]);
+
+    const fetchCircleDetails = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/online-circle/api/circles/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setName(data.circle.name);
+                setTheme(data.circle.theme);
+                setGenre(data.circle.genre);
+                setGender(data.circle.gender);
+                setDetails(data.circle.details);
+            } else {
+                setError('サークル情報の取得に失敗しました');
+            }
+        } catch (error) {
+            setError('サークル情報の取得中にエラーが発生しました');
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -16,8 +46,8 @@ export default function CreateCircle() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/online-circle/api/circles', {
-                method: 'POST',
+            const response = await fetch(`/online-circle/api/circles/${id}/edit`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -26,13 +56,13 @@ export default function CreateCircle() {
             });
 
             if (response.ok) {
-                router.push('/online-circle/home');
+                router.push(`/online-circle/circle/${id}`);
             } else {
                 const data = await response.json();
                 setError(data.message);
             }
         } catch (error) {
-            setError('サークル作成中にエラーが発生しました');
+            setError('サークル編集中にエラーが発生しました');
         }
     };
 
@@ -40,7 +70,7 @@ export default function CreateCircle() {
         <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                    サークルを作成
+                    サークルを編集
                 </h2>
             </div>
 
@@ -142,7 +172,7 @@ export default function CreateCircle() {
                                 type="submit"
                                 className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                             >
-                                作成
+                                更新
                             </button>
                             <button
                                 type="button"

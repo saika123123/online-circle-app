@@ -13,7 +13,7 @@ export default function JoinCircle() {
     const fetchCircles = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/circles?type=join', {
+            const response = await fetch('/online-circle/api/circles?type=join', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -32,7 +32,7 @@ export default function JoinCircle() {
     const handleJoin = async (circleId) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/circles/${circleId}/join`, {
+            const response = await fetch(`/online-circle/api/circles/${circleId}/join`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -65,12 +65,20 @@ export default function JoinCircle() {
                                         <h3 className="font-semibold">{circle.name}</h3>
                                         <p>テーマ: {circle.theme}</p>
                                         <p>ジャンル: {circle.genre}</p>
-                                        <button
-                                            onClick={() => handleJoin(circle.id)}
-                                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                        >
-                                            参加する
-                                        </button>
+                                        <div className="mt-2 space-x-2">
+                                            <button
+                                                onClick={() => handleJoin(circle.id)}
+                                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                            >
+                                                参加する
+                                            </button>
+                                            <button
+                                                onClick={() => router.push(`/online-circle/circle/${circle.id}`)}
+                                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                                            >
+                                                詳細を見る
+                                            </button>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
@@ -78,7 +86,7 @@ export default function JoinCircle() {
                             <p>参加可能なサークルはありません。</p>
                         )}
                         <button
-                            onClick={() => router.push('/home')}
+                            onClick={() => router.push('/online-circle/home')}
                             className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                         >
                             ホームに戻る

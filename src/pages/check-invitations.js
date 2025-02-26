@@ -13,7 +13,7 @@ export default function CheckInvitations() {
     const fetchInvitations = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/invitations', {
+            const response = await fetch('/online-circle/api/invitations', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -37,7 +37,7 @@ export default function CheckInvitations() {
     const handleResponse = async (invitationId, status) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/invitations/${invitationId}/respond`, {
+            const response = await fetch(`/online-circle/api/invitations/${invitationId}/respond`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export default function CheckInvitations() {
                             <p>現在、招待はありません。</p>
                         )}
                         <button
-                            onClick={() => router.push('/home')}
+                            onClick={() => router.push('/online-circle/home')}
                             className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                         >
                             ホームに戻る

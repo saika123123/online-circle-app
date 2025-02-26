@@ -29,7 +29,7 @@ export default async function handler(req, res) {
             delete gathering.user_status;
 
             // URL を生成
-            gathering.url = `https://wsapp.cs.kobe-u.ac.jp/meetcs27/${gathering.meeting_id}?user=${user.userId}`;
+            gathering.url = `https://wsapp.cs.kobe-u.ac.jp/meetcs27/${gathering.meeting_id}?user=${user.displayName}`;
 
 
             res.status(200).json({ gathering, userStatus });

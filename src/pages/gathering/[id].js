@@ -6,9 +6,10 @@ export default function GatheringDetail() {
     const [participants, setParticipants] = useState([]);
     const [userStatus, setUserStatus] = useState(null);
     const [error, setError] = useState('');
+    const [isCreator, setIsCreator] = useState(false);
+    const [isGatheringStarted, setIsGatheringStarted] = useState(false);
     const router = useRouter();
     const { id } = router.query;
-    const [isGatheringStarted, setIsGatheringStarted] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -38,7 +39,7 @@ export default function GatheringDetail() {
     const fetchGatheringDetail = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/gatherings/${id}`, {
+            const response = await fetch(`/online-circle/api/gatherings/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -47,6 +48,7 @@ export default function GatheringDetail() {
                 const data = await response.json();
                 setGathering(data.gathering);
                 setUserStatus(data.userStatus);
+                setIsCreator(data.gathering.creator_id === JSON.parse(atob(token.split('.')[1])).userId);
             } else {
                 setError('寄合の詳細情報の取得に失敗しました');
             }
@@ -58,7 +60,7 @@ export default function GatheringDetail() {
     const fetchParticipants = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/gatherings/${id}/participants`, {
+            const response = await fetch(`/online-circle/api/gatherings/${id}/participants`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -81,7 +83,7 @@ export default function GatheringDetail() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/gatherings/${id}/participate`, {
+            const response = await fetch(`/online-circle/api/gatherings/${id}/participate`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -103,6 +105,32 @@ export default function GatheringDetail() {
     const handleJoinGathering = () => {
         if (gathering.url) {
             window.open(gathering.url, '_blank');
+        }
+    };
+
+    const handleEdit = () => {
+        router.push(`/online-circle/gathering/edit/${id}`);
+    };
+
+    const handleDelete = async () => {
+        if (confirm('本当にこの寄合を削除しますか？')) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/online-circle/api/gatherings/${id}/edit`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    router.push('/online-circle/gathering-list');
+                } else {
+                    const data = await response.json();
+                    setError(data.message);
+                }
+            } catch (error) {
+                setError('寄合削除中にエラーが発生しました');
+            }
         }
     };
 
@@ -179,7 +207,7 @@ export default function GatheringDetail() {
                         <ul className="space-y-4 text-2xl">
                             {participants.map((participant) => (
                                 <li key={participant.id} className="flex items-center justify-between bg-gray-100 p-4 rounded-lg">
-                                    <span>{participant.username}</span>
+                                    <span>{participant.display_name}</span>
                                     <span className={`px-4 py-2 rounded-full ${participant.status === 'accepted' ? 'bg-green-200 text-green-800' :
                                         participant.status === 'declined' ? 'bg-red-200 text-red-800' :
                                             'bg-yellow-200 text-yellow-800'
@@ -191,8 +219,19 @@ export default function GatheringDetail() {
                             ))}
                         </ul>
 
+                        {isCreator && (
+                            <div className="mt-8">
+                                <button
+                                    onClick={() => router.push(`/online-circle/gathering/edit/${id}`)}
+                                    className="px-6 py-3 bg-yellow-500 text-white text-xl font-bold rounded-xl hover:bg-yellow-600 active:bg-yellow-700"
+                                >
+                                    編集
+                                </button>
+                            </div>
+                        )}
+
                         <button
-                            onClick={() => router.push('/gathering-list')}
+                            onClick={() => router.push('/online-circle/gathering-list')}
                             className="mt-16 w-full py-6 bg-blue-500 text-white text-3xl font-bold rounded-xl hover:bg-blue-600 active:bg-blue-700"
                         >
                             寄合一覧に戻る

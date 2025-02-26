@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   try {
     // ユーザーの検索
     const [users] = await pool.query(
-      'SELECT * FROM users WHERE username = ?',
+      'SELECT * FROM users WHERE user_id = ?',
       [userId]
     );
 
@@ -33,14 +33,24 @@ export default async function handler(req, res) {
 
     // JWTトークンの生成
     const token = jwt.sign(
-      { userId: user.id, username: user.username, displayName: user.display_name },
+      {
+        userId: user.id,
+        user_id: user.user_id,
+        displayName: user.display_name // Base64エンコーディングを削除
+      },
       JWT_SECRET,
       { expiresIn: '1h' }
     );
+    console.log('Generated token:', token);
 
-    res.status(200).json({ token, userId: user.id, username: user.username, displayName: user.display_name });
+    res.status(200).json({
+      token,
+      userId: user.id,
+      user_id: user.user_id,
+      displayName: user.display_name
+    });
   } catch (error) {
-    console.error(error);
+    console.error('Login error:', error);
     res.status(500).json({ message: 'サーバーエラーが発生しました' });
   }
 }

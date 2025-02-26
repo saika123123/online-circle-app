@@ -13,7 +13,7 @@ export default function CheckCircles() {
     const fetchCircles = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/circles?type=check', {
+            const response = await fetch('/online-circle/api/circles?type=check', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -47,7 +47,7 @@ export default function CheckCircles() {
                                         <p>テーマ: {circle.theme}</p>
                                         <p>ジャンル: {circle.genre}</p>
                                         <button
-                                            onClick={() => router.push(`/circle/${circle.id}`)}
+                                            onClick={() => router.push(`/online-circle/circle/${circle.id}`)}
                                             className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                                         >
                                             詳細を見る
@@ -59,7 +59,7 @@ export default function CheckCircles() {
                             <p>参加しているサークルはありません。</p>
                         )}
                         <button
-                            onClick={() => router.push('/home')}
+                            onClick={() => router.push('/online-circle/home')}
                             className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                         >
                             ホームに戻る

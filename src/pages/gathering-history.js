@@ -14,7 +14,7 @@ export default function GatheringHistory() {
     const fetchGatheringHistory = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/gathering-history', {
+            const response = await fetch('/online-circle/api/gathering-history', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

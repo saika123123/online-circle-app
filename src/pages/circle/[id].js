@@ -19,7 +19,7 @@ export default function CircleDetail() {
     const fetchCircleDetail = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/circles/${id}`, {
+            const response = await fetch(`/online-circle/api/circles/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -41,7 +41,7 @@ export default function CircleDetail() {
     const handleJoin = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/circles/${id}/join`, {
+            const response = await fetch(`/online-circle/api/circles/${id}/join`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -77,7 +77,7 @@ export default function CircleDetail() {
         if (confirm('本当にこのサークルから脱退しますか？')) {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`/api/circles/${id}/leave`, {
+                const response = await fetch(`/online-circle/api/circles/${id}/leave`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -100,7 +100,7 @@ export default function CircleDetail() {
         if (confirm('本当にこのサークルを削除しますか？')) {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`/api/circles/${id}/edit`, {
+                const response = await fetch(`/online-circle/api/circles/${id}/edit`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`

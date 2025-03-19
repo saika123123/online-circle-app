@@ -13,7 +13,7 @@ export default function CheckCircles() {
     const fetchCircles = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/circles?type=check', {
+            const response = await fetch('/online-circle/api/circles?type=check', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

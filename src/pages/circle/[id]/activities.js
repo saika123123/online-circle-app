@@ -24,7 +24,7 @@ export default function CircleActivities() {
     const fetchActivities = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/circles/${circleId}/activities`, {
+            const response = await fetch(`/online-circle/api/circles/${circleId}/activities`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -46,7 +46,7 @@ export default function CircleActivities() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/circles/${circleId}/activities`, {
+            const response = await fetch(`/online-circle/api/circles/${circleId}/activities`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

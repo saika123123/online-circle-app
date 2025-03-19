@@ -112,7 +112,7 @@ export default function GatheringList() {
     const fetchGatherings = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/gatherings', {
+            const response = await fetch('/online-circle/api/gatherings', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -160,7 +160,7 @@ export default function GatheringList() {
             try {
                 const token = localStorage.getItem('token');
                 const response = await fetch(
-                    `/api/gatherings/${gatheringId}/participate`,
+                    `/online-circle/api/gatherings/${gatheringId}/participate`,
                     {
                         method: 'POST',
                         headers: {

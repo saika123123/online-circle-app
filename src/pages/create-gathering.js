@@ -19,7 +19,7 @@ export default function CreateGathering() {
     const fetchUserCircles = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/user-circles', {
+            const response = await fetch('/online-circle/api/user-circles', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -41,7 +41,7 @@ export default function CreateGathering() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/gatherings', {
+            const response = await fetch('/online-circle/api/gatherings', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

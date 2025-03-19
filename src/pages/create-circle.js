@@ -16,7 +16,7 @@ export default function CreateCircle() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/circles', {
+            const response = await fetch('/online-circle/api/circles', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

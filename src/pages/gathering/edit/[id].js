@@ -19,7 +19,7 @@ export default function EditGathering() {
     const fetchGatheringDetails = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/gatherings/${id}`, {
+            const response = await fetch(`/online-circle/api/gatherings/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -45,8 +45,7 @@ export default function EditGathering() {
 
         try {
             const token = localStorage.getItem('token');
-            console.log('Sending edit request');
-            const response = await fetch(`/api/gatherings/${id}/edit`, {
+            const response = await fetch(`/online-circle/api/gatherings/${id}/edit`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -59,18 +58,13 @@ export default function EditGathering() {
                 }),
             });
 
-            const data = await response.json();
-            console.log('Edit response:', data);
-
             if (response.ok) {
-                localStorage.setItem('gatheringEdited', 'true');
-                router.push('/gathering-list');
+                router.push(`/gathering/${id}`);
             } else {
                 const data = await response.json();
                 setError(data.message);
             }
         } catch (error) {
-            console.error('Error in handleSubmit:', error);
             setError('寄合編集中にエラーが発生しました');
         }
     };
@@ -158,7 +152,7 @@ export default function EditGathering() {
                             >
                                 更新
                             </button>
-
+                            
                             <button
                                 type="button"
                                 onClick={() => router.back()}

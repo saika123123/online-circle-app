@@ -20,7 +20,7 @@ export default function EditCircle() {
     const fetchCircleDetails = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/circles/${id}`, {
+            const response = await fetch(`/online-circle/api/circles/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -46,7 +46,7 @@ export default function EditCircle() {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/circles/${id}/edit`, {
+            const response = await fetch(`/online-circle/api/circles/${id}/edit`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

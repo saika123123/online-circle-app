@@ -13,7 +13,7 @@ export default function CheckInvitations() {
     const fetchInvitations = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/invitations', {
+            const response = await fetch('/online-circle/api/invitations', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -37,7 +37,7 @@ export default function CheckInvitations() {
     const handleResponse = async (invitationId, status) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/invitations/${invitationId}/respond`, {
+            const response = await fetch(`/online-circle/api/invitations/${invitationId}/respond`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

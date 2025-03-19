@@ -15,7 +15,7 @@ export default function CircleActivities() {
     const fetchUserCircles = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/user-circles', {
+            const response = await fetch('/online-circle/api/user-circles', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

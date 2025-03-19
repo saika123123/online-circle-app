@@ -13,7 +13,7 @@ export default function Home() {
     const fetchInvitations = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/invitations', {
+            const response = await fetch('/online-circle/api/invitations', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

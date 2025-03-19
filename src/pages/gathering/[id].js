@@ -19,7 +19,7 @@ export default function GatheringDetail() {
     const fetchGatheringDetail = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/gatherings/${id}`, {
+            const response = await fetch(`/online-circle/api/gatherings/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -40,7 +40,7 @@ export default function GatheringDetail() {
     const fetchParticipants = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/gatherings/${id}/participants`, {
+            const response = await fetch(`/online-circle/api/gatherings/${id}/participants`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

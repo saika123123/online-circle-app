@@ -13,7 +13,7 @@ export default function JoinCircle() {
     const fetchCircles = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('/api/circles?type=join', {
+            const response = await fetch('/online-circle/api/circles?type=join', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -32,7 +32,7 @@ export default function JoinCircle() {
     const handleJoin = async (circleId) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`/api/circles/${circleId}/join`, {
+            const response = await fetch(`/online-circle/api/circles/${circleId}/join`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`

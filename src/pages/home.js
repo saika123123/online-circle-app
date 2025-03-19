@@ -1,12 +1,17 @@
+// src/pages/home.js の修正版
+
 import jwt from 'jsonwebtoken';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Home() {
     const [displayName, setDisplayName] = useState('');
     const [currentTime, setCurrentTime] = useState(null);
     const [invitations, setInvitations] = useState([]);
+    const [upcomingGatherings, setUpcomingGatherings] = useState([]);
+    const [serverTimeDiff, setServerTimeDiff] = useState(0);
+    const checkTimerRef = useRef(null);
     const router = useRouter();
 
     // 招待の取得
@@ -28,6 +33,56 @@ export default function Home() {
             }
         } catch (error) {
             console.error('Error fetching invitations:', error);
+        }
+    };
+
+    // 近づいている寄合を取得する関数
+    const fetchUpcomingGatherings = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('/online-circle/api/upcoming-gatherings', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUpcomingGatherings(data.upcomingGatherings);
+
+                // サーバー時間とクライアント時間の差を計算して保存
+                const serverTime = new Date(data.serverTime);
+                const clientTime = new Date();
+                setServerTimeDiff(serverTime - clientTime);
+
+                console.log('Upcoming gatherings:', data.upcomingGatherings);
+            }
+        } catch (error) {
+            console.error('Error fetching upcoming gatherings:', error);
+        }
+    };
+
+    // 寄合の時間をチェックする関数
+    const checkGatheringTime = () => {
+        if (upcomingGatherings.length === 0) return;
+
+        // 現在時刻 + サーバーとの時間差
+        const now = new Date(new Date().getTime() + serverTimeDiff);
+
+        for (const gathering of upcomingGatherings) {
+            const gatheringTime = new Date(gathering.datetime);
+
+            // 現在時刻と寄合開始時刻の差（分）
+            const diffMinutes = (gatheringTime - now) / (1000 * 60);
+
+            // 開始時間になった場合（1分以内に開始される寄合）
+            if (diffMinutes <= 1 && diffMinutes >= 0) {
+                // 通知を表示して寄合ページに遷移
+                if (confirm(`「${gathering.theme}」の寄合が開始されます。参加しますか？`)) {
+                    router.push(`/online-circle/gathering/${gathering.id}`);
+                    return; // 一度遷移したら終了
+                }
+            }
         }
     };
 
@@ -53,28 +108,36 @@ export default function Home() {
             return;
         }
 
-        // 招待の初回取得と定期更新
+        // 初回データ取得
         fetchInvitations();
-        const invitationInterval = setInterval(fetchInvitations, 5 * 60 * 1000); // 5分ごとに更新
+        fetchUpcomingGatherings();
 
-        // 時計の更新
-        setCurrentTime(new Date());
+        // 定期的なデータ更新の設定
+        const invitationInterval = setInterval(fetchInvitations, 5 * 60 * 1000); // 5分ごと
+        const gatheringInterval = setInterval(fetchUpcomingGatherings, 60 * 1000); // 1分ごと
+
+        // 時計の更新と寄合チェック（10秒ごと）
         const timer = setInterval(() => {
-            setCurrentTime(new Date());
-        }, 1000);
+            const newTime = new Date();
+            setCurrentTime(newTime);
+            checkGatheringTime();
+        }, 10 * 1000);
+
+        checkTimerRef.current = timer;
 
         return () => {
             clearInterval(timer);
             clearInterval(invitationInterval);
+            clearInterval(gatheringInterval);
         };
-    }, [router]);
+    }, [router, upcomingGatherings, serverTimeDiff]);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
         router.push('/online-circle/login');
     };
 
-    const handleInvitationClick = (gatheringId) => {
+    const handleInvitationClick = () => {
         router.push(`/online-circle/check-invitations`);
     };
 
@@ -110,6 +173,53 @@ export default function Home() {
                         </p>
                     </div>
                 </header>
+
+                {/* 近づいている寄合の通知 */}
+                {upcomingGatherings.length > 0 && (
+                    <div className="mb-8">
+                        {upcomingGatherings.map((gathering) => {
+                            const gatheringTime = new Date(gathering.datetime);
+                            const now = new Date(new Date().getTime() + serverTimeDiff);
+                            const diffMinutes = Math.floor((gatheringTime - now) / (1000 * 60));
+
+                            // 30分以内に開始される寄合のみ表示
+                            if (diffMinutes > 30 || diffMinutes < 0) return null;
+
+                            return (
+                                <div
+                                    key={gathering.id}
+                                    className="w-full p-6 bg-red-50 border-2 border-red-300 rounded-2xl 
+                                             shadow-lg mb-4"
+                                >
+                                    <div className="flex items-center">
+                                        <div className="mr-4">
+                                            <span className="text-4xl">⏰</span>
+                                        </div>
+                                        <div className="flex-1 text-left">
+                                            <p className="text-2xl font-bold text-gray-800 mb-2">
+                                                まもなく寄合が始まります！
+                                            </p>
+                                            <p className="text-xl text-gray-700">
+                                                「{gathering.theme}」
+                                            </p>
+                                            <p className="text-lg text-gray-600 mt-1">
+                                                開始時刻：{gatheringTime.toLocaleString('ja-JP')} (あと約{diffMinutes}分)
+                                            </p>
+                                        </div>
+                                        <div className="ml-4">
+                                            <button
+                                                onClick={() => router.push(`/online-circle/gathering/${gathering.id}`)}
+                                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                                            >
+                                                参加する
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
 
                 {/* 招待通知 */}
                 {invitations.length > 0 && (
@@ -185,7 +295,7 @@ export default function Home() {
                         </div>
                     </Link>
                 </div>
-                
+
                 {/* フッター部分 */}
                 <footer className="text-center">
                     <button

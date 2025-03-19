@@ -1,3 +1,5 @@
+// src/pages/api/upcoming-gatherings.js
+
 import pool from '../../lib/db';
 import verifyToken from '../../utils/auth';
 

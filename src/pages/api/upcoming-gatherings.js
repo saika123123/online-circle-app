@@ -19,6 +19,7 @@ export default async function handler(req, res) {
             FROM gatherings g
             JOIN gathering_participants gp ON g.id = gp.gathering_id
             WHERE gp.user_id = ? 
+            AND gp.status IN ('accepted', '作成者')
             AND g.datetime > DATE_SUB(NOW(), INTERVAL 2 MINUTE)
             AND g.datetime < DATE_ADD(NOW(), INTERVAL 1 DAY)
             ORDER BY g.datetime ASC`,

@@ -174,7 +174,7 @@ export default function Home() {
                     </div>
                 </header>
 
-                {/* 近づいている寄合の通知 */}
+                {/* 近づいている寄合の通知（参加予定の寄合のみ） */}
                 {upcomingGatherings.length > 0 && (
                     <div className="mb-8">
                         {upcomingGatherings.map((gathering) => {

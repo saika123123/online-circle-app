@@ -77,11 +77,10 @@ export default function Home() {
 
             // 開始時間になった場合（1分以内に開始される寄合）
             if (diffMinutes <= 1 && diffMinutes >= 0) {
-                // 通知を表示して寄合ページに遷移
-                if (confirm(`「${gathering.theme}」の寄合が開始されます。参加しますか？`)) {
-                    router.push(`/online-circle/gathering/${gathering.id}`);
-                    return; // 一度遷移したら終了
-                }
+                // 確認なしで自動的に寄合ページに遷移
+                const gathringUrl = `https://es4.eedept.kobe-u.ac.jp/online-circle/gathering/${gathering.id}`;
+                window.location.href = gathringUrl;
+                return; // 一度遷移したら終了
             }
         }
     };
@@ -138,7 +137,7 @@ export default function Home() {
     };
 
     const handleInvitationClick = () => {
-        router.push(`/online-circle/check-invitations`);
+        window.location.href = 'https://es4.eedept.kobe-u.ac.jp/online-circle/check-invitations';
     };
 
     return (
@@ -208,7 +207,10 @@ export default function Home() {
                                         </div>
                                         <div className="ml-4">
                                             <button
-                                                onClick={() => router.push(`/online-circle/gathering/${gathering.id}`)}
+                                                onClick={() => {
+                                                    const gathringUrl = `https://es4.eedept.kobe-u.ac.jp/online-circle/gathering/${gathering.id}`;
+                                                    window.location.href = gathringUrl;
+                                                }}
                                                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                                             >
                                                 参加する

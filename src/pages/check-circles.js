@@ -99,7 +99,7 @@ export default function CheckCircles() {
                                     )}
                                     <div className="pt-6">
                                         <button
-                                            onClick={() => router.push(`/circle/${circle.id}`)}
+                                            onClick={() => router.push(`/online-circle/circle/${circle.id}`)}
                                             className="w-full text-2xl bg-gradient-to-r from-orange-400 to-orange-500 
                                                      text-white py-4 px-6 rounded-xl hover:from-orange-500 
                                                      hover:to-orange-600 transition-all duration-200 
@@ -127,7 +127,7 @@ export default function CheckCircles() {
                 {/* 戻るボタン */}
                 <div className="mt-8 text-center">
                     <button
-                        onClick={() => router.push('/home')}
+                        onClick={() => router.push('/online-circle/home')}
                         className="bg-white text-2xl text-gray-700 py-4 px-12 rounded-2xl 
                                  hover:bg-gray-50 transition-colors duration-200 shadow-md
                                  border-2 border-orange-100 flex items-center mx-auto"

@@ -56,7 +56,7 @@ export default function EditCircle() {
             });
 
             if (response.ok) {
-                router.push(`/circle/${id}`);
+                router.push(`/online-circle/circle/${id}`);
             } else {
                 const data = await response.json();
                 setError(data.message);

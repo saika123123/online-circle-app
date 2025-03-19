@@ -21,7 +21,7 @@ export default function Register() {
             });
 
             if (response.ok) {
-                router.push('/login');
+                router.push('/online-circle/login');
             } else {
                 const data = await response.json();
                 setError(data.message);
@@ -105,7 +105,7 @@ export default function Register() {
                     </div>
                 </form>
                 <div className="text-center">
-                    <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+                    <Link href="/online-circle/login" className="font-medium text-indigo-600 hover:text-indigo-500">
                         ログイン画面に戻る
                     </Link>
                 </div>

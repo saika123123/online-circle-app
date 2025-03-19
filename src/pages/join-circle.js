@@ -133,7 +133,7 @@ export default function JoinCircle() {
                                         参加する
                                     </button>
                                     <button
-                                        onClick={() => router.push(`/circle/${circle.id}`)}
+                                        onClick={() => router.push(`/online-circle/circle/${circle.id}`)}
                                         className="flex-1 p-4 bg-gradient-to-r from-blue-500 to-blue-600 
                                                  text-white text-2xl rounded-xl hover:from-blue-600 
                                                  hover:to-blue-700 transition-all duration-200 flex 
@@ -158,7 +158,7 @@ export default function JoinCircle() {
                             </div>
 
                             <button
-                                onClick={() => router.push('/create-circle')}
+                                onClick={() => router.push('/online-circle/create-circle')}
                                 className="w-full max-w-2xl mx-auto p-6 bg-gradient-to-r from-green-500 to-green-600 
                                          text-white text-2xl rounded-2xl hover:from-green-600 
                                          hover:to-green-700 transition-all duration-200 flex 
@@ -186,7 +186,7 @@ export default function JoinCircle() {
                             あなたの興味や趣味を活かして、新しいサークルを始めましょう
                         </p>
                         <button
-                            onClick={() => router.push('/create-circle')}
+                            onClick={() => router.push('/online-circle/create-circle')}
                             className="px-12 py-4 bg-gradient-to-r from-green-500 to-green-600 
                      text-white text-2xl rounded-2xl hover:from-green-600 
                      hover:to-green-700 transition-all duration-200 flex 
@@ -201,7 +201,7 @@ export default function JoinCircle() {
                 {/* 戻るボタン */}
                 <div className="mt-8 text-center">
                     <button
-                        onClick={() => router.push('/home')}
+                        onClick={() => router.push('/online-circle/home')}
                         className="px-12 py-4 text-2xl text-gray-700 bg-white rounded-2xl 
                                  hover:bg-gray-50 transition-colors duration-200 flex items-center 
                                  justify-center mx-auto border-2 border-orange-200"

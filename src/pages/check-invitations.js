@@ -91,7 +91,7 @@ export default function CheckInvitations() {
                             <p>現在、招待はありません。</p>
                         )}
                         <button
-                            onClick={() => router.push('/home')}
+                            onClick={() => router.push('/online-circle/home')}
                             className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                         >
                             ホームに戻る

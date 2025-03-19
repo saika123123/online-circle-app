@@ -194,7 +194,7 @@ export default function GatheringDetail() {
                 <div className="space-y-4">
                     {isCreator && (
                         <button
-                            onClick={() => router.push(`/gathering/edit/${id}`)}
+                            onClick={() => router.push(`/online-circle/gathering/edit/${id}`)}
                             className="w-full p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 
                                      text-white text-2xl rounded-xl hover:from-yellow-600 
                                      hover:to-yellow-700 transition-all duration-200 flex 
@@ -206,7 +206,7 @@ export default function GatheringDetail() {
                     )}
 
                     <button
-                        onClick={() => router.push('/gathering-list')}
+                        onClick={() => router.push('/online-circle/gathering-list')}
                         className="w-full p-4 bg-white text-gray-700 text-2xl rounded-xl 
                                  hover:bg-gray-50 transition-all duration-200 flex items-center 
                                  justify-center shadow-lg border-2 border-gray-200"

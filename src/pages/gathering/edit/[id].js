@@ -59,7 +59,7 @@ export default function EditGathering() {
             });
 
             if (response.ok) {
-                router.push(`/gathering/${id}`);
+                router.push(`/online-circle/gathering/${id}`);
             } else {
                 const data = await response.json();
                 setError(data.message);

@@ -35,7 +35,7 @@ export default function Home() {
         // トークンの確認とユーザー名の取得
         const token = localStorage.getItem('token');
         if (!token) {
-            router.push('/login');
+            router.push('/online-circle/login');
             return;
         }
 
@@ -49,7 +49,7 @@ export default function Home() {
         } catch (error) {
             console.error('Error decoding token:', error);
             localStorage.removeItem('token');
-            router.push('/login');
+            router.push('/online-circle/login');
             return;
         }
 
@@ -71,11 +71,11 @@ export default function Home() {
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        router.push('/login');
+        router.push('/online-circle/login');
     };
 
     const handleInvitationClick = (gatheringId) => {
-        router.push(`/check-invitations`);
+        router.push(`/online-circle/check-invitations`);
     };
 
     return (
@@ -149,7 +149,7 @@ export default function Home() {
 
                 {/* メインメニュー */}
                 <div className="grid grid-cols-2 gap-6 mb-12">
-                    <Link href="/check-circles"
+                    <Link href="/online-circle/check-circles"
                         className="block p-8 bg-indigo-100 border-4 border-indigo-400 hover:bg-indigo-200 
                  rounded-2xl shadow-lg transition-all duration-200">
                         <div className="text-4xl font-bold text-center text-indigo-700">
@@ -158,7 +158,7 @@ export default function Home() {
                         </div>
                     </Link>
 
-                    <Link href="/join-circle"
+                    <Link href="/online-circle/join-circle"
                         className="block p-8 bg-amber-100 border-4 border-amber-400 hover:bg-amber-200
                  rounded-2xl shadow-lg transition-all duration-200">
                         <div className="text-4xl font-bold text-center text-amber-700">
@@ -167,7 +167,7 @@ export default function Home() {
                         </div>
                     </Link>
 
-                    <Link href="/create-gathering"
+                    <Link href="/online-circle/create-gathering"
                         className="block p-8 bg-teal-100 border-4 border-teal-400 hover:bg-teal-200
                  rounded-2xl shadow-lg transition-all duration-200">
                         <div className="text-4xl font-bold text-center text-teal-700">
@@ -176,7 +176,7 @@ export default function Home() {
                         </div>
                     </Link>
 
-                    <Link href="/gathering-list"
+                    <Link href="/online-circle/gathering-list"
                         className="block p-8 bg-rose-100 border-4 border-rose-400 hover:bg-rose-200
                  rounded-2xl shadow-lg transition-all duration-200">
                         <div className="text-4xl font-bold text-center text-rose-700">

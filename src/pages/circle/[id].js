@@ -60,7 +60,7 @@ export default function CircleDetail() {
     };
 
     const handleEdit = () => {
-        router.push(`/circle/edit/${id}`);
+        router.push(`/online-circle/circle/edit/${id}`);
     };
 
     const getGenreIcon = (genre) => {
@@ -107,7 +107,7 @@ export default function CircleDetail() {
                     }
                 });
                 if (response.ok) {
-                    router.push('/home');
+                    router.push('/online-circle/home');
                 } else {
                     const data = await response.json();
                     setError(data.message);
@@ -213,7 +213,7 @@ export default function CircleDetail() {
 
                     {isCreator && (
                         <button
-                            onClick={() => router.push(`/circle/edit/${id}`)}
+                            onClick={() => router.push(`/online-circle/circle/edit/${id}`)}
                             className="w-full p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 
                                      text-white text-2xl rounded-2xl hover:from-yellow-600 
                                      hover:to-yellow-700 transition-all duration-200 flex 
@@ -238,7 +238,7 @@ export default function CircleDetail() {
                     )}
 
                     <button
-                        onClick={() => router.push('/check-circles')}
+                        onClick={() => router.push('/online-circle/check-circles')}
                         className="w-full p-4 bg-gray-100 text-gray-700 text-2xl rounded-2xl 
                                  hover:bg-gray-200 transition-all duration-200 flex items-center 
                                  justify-center shadow-lg border-2 border-gray-200"

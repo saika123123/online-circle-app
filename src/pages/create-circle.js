@@ -27,7 +27,7 @@ export default function CreateCircle() {
 
             if (response.ok) {
                 alert('サークルの作成が完了しました！\n新しい仲間との楽しい活動を始めましょう。');
-                router.push('/home');
+                router.push('/online-circle/home');
             } else {
                 const data = await response.json();
                 setError(data.message);

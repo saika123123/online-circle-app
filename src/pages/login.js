@@ -23,7 +23,7 @@ export default function Login() {
                 const data = await response.json();
                 // トークンをローカルストレージに保存
                 localStorage.setItem('token', data.token);
-                router.push('/home');
+                router.push('/online-circle/home');
             } else {
                 const data = await response.json();
                 setError(data.message);
@@ -86,7 +86,7 @@ export default function Login() {
                     </div>
                 </form>
                 <div className="text-center">
-                    <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+                    <Link href="/online-circle/register" className="font-medium text-indigo-600 hover:text-indigo-500">
                         登録がまだの方はこちら
                     </Link>
                 </div>

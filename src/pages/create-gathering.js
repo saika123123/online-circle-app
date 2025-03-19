@@ -57,7 +57,7 @@ export default function CreateGathering() {
 
             if (response.ok) {
                 alert('寄合の作成が完了しました！\nメンバーに招待通知が送られます。');
-                router.push('/home');
+                router.push('/online-circle/home');
             } else {
                 const data = await response.json();
                 setError(data.message);

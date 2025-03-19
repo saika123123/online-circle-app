@@ -69,7 +69,7 @@ export default function CircleActivities() {
 
                 <div className="mt-8 text-center">
                     <button
-                        onClick={() => router.push('/home')}
+                        onClick={() => router.push('/online-circle/home')}
                         className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
                     >
                         ホームに戻る

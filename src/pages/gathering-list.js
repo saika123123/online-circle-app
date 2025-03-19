@@ -203,7 +203,7 @@ export default function GatheringList() {
                                 </div>
                                 <div className="flex space-x-4">
                                     <Link
-                                        href={`/gathering/${gathering.id}`}
+                                        href={`/online-circle/gathering/${gathering.id}`}
                                         className="flex-1 p-4 bg-gradient-to-r from-blue-500 to-blue-600 
                                                  text-white text-xl rounded-xl hover:from-blue-600 
                                                  hover:to-blue-700 transition-all duration-200 flex 
@@ -315,7 +315,7 @@ export default function GatheringList() {
 
                 {/* 戻るボタン */}
                 <button
-                    onClick={() => router.push('/home')}
+                    onClick={() => router.push('/online-circle/home')}
                     className="w-full p-4 bg-white text-gray-700 text-2xl rounded-xl 
                              hover:bg-gray-50 transition-all duration-200 flex items-center 
                              justify-center shadow-lg border-2 border-orange-200"

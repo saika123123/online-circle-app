@@ -110,7 +110,7 @@ export default function GatheringHistory() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                                             <button
-                                                onClick={() => router.push(`/gathering/${gathering.id}`)}
+                                                onClick={() => router.push(`/online-circle/gathering/${gathering.id}`)}
                                                 className="text-indigo-600 hover:text-indigo-900"
                                             >
                                                 詳細を見る
@@ -129,7 +129,7 @@ export default function GatheringHistory() {
 
                 <div className="mt-8 text-center">
                     <button
-                        onClick={() => router.push('/home')}
+                        onClick={() => router.push('/online-circle/home')}
                         className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                     >
                         ホームに戻る

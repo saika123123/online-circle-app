@@ -39,7 +39,7 @@ export default async function handler(req, res) {
         displayName: user.display_name // Base64エンコーディングを削除
       },
       JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '365d' }
     );
     console.log('Generated token:', token);
 

@@ -1,12 +1,38 @@
+import jwt from 'jsonwebtoken';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Login() {
     const [userId, setUserId] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
+
+    useEffect(() => {
+        // ページロード時に自動ログインを試みる
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                // JWTのデコード（署名検証なし）
+                const decoded = jwt.decode(token);
+                const currentTime = Math.floor(Date.now() / 1000);
+
+                // トークンが有効な場合は自動的にホームページに遷移
+                if (decoded && decoded.exp && decoded.exp > currentTime) {
+                    router.push('/online-circle/home');
+                    return;
+                } else {
+                    // 期限切れならトークンを削除
+                    localStorage.removeItem('token');
+                }
+            } catch (error) {
+                localStorage.removeItem('token');
+            }
+        }
+        setLoading(false);
+    }, [router]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,6 +58,14 @@ export default function Login() {
             setError('ログイン中にエラーが発生しました');
         }
     };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-xl">ログイン状態を確認中...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -76,6 +110,12 @@ export default function Login() {
                         </div>
                     </div>
 
+                    {error && (
+                        <div className="text-red-500 text-center mt-2">
+                            {error}
+                        </div>
+                    )}
+
                     <div>
                         <button
                             type="submit"
@@ -93,13 +133,4 @@ export default function Login() {
             </div>
         </div>
     );
-
-    // エラーメッセージの表示を追加
-    {
-        error && (
-            <div className="text-red-500 text-center mt-2">
-                {error}
-            </div>
-        )
-    }
 }

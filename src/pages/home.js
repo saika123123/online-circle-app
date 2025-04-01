@@ -1,5 +1,3 @@
-// src/pages/home.js の修正版
-
 import jwt from 'jsonwebtoken';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -11,8 +9,32 @@ export default function Home() {
     const [invitations, setInvitations] = useState([]);
     const [upcomingGatherings, setUpcomingGatherings] = useState([]);
     const [serverTimeDiff, setServerTimeDiff] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
     const checkTimerRef = useRef(null);
     const router = useRouter();
+
+    // トークンの有効性を確認する関数
+    const validateToken = () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            return false;
+        }
+
+        try {
+            const decoded = jwt.decode(token);
+            if (!decoded) return false;
+
+            if (decoded.exp) {
+                const currentTime = Math.floor(Date.now() / 1000);
+                return decoded.exp > currentTime;
+            }
+
+            return false;
+        } catch (error) {
+            console.error('Token validation error:', error);
+            return false;
+        }
+    };
 
     // 招待の取得
     const fetchInvitations = async () => {
@@ -86,13 +108,18 @@ export default function Home() {
     };
 
     useEffect(() => {
+        // 初期ローディング
+        setIsLoading(true);
+
         // トークンの確認とユーザー名の取得
-        const token = localStorage.getItem('token');
-        if (!token) {
+        const isValid = validateToken();
+        if (!isValid) {
+            localStorage.removeItem('token');
             router.push('/online-circle/login');
             return;
         }
 
+        const token = localStorage.getItem('token');
         try {
             const decoded = jwt.decode(token);
             if (decoded && decoded.displayName) {
@@ -110,6 +137,7 @@ export default function Home() {
         // 初回データ取得
         fetchInvitations();
         fetchUpcomingGatherings();
+        setIsLoading(false);
 
         // 定期的なデータ更新の設定
         const invitationInterval = setInterval(fetchInvitations, 5 * 60 * 1000); // 5分ごと
@@ -120,6 +148,17 @@ export default function Home() {
             const newTime = new Date();
             setCurrentTime(newTime);
             checkGatheringTime();
+
+            // 定期的なトークン検証（5分ごと）
+            if (newTime.getMinutes() % 5 === 0 && newTime.getSeconds() < 10) {
+                if (!validateToken()) {
+                    clearInterval(timer);
+                    clearInterval(invitationInterval);
+                    clearInterval(gatheringInterval);
+                    localStorage.removeItem('token');
+                    router.push('/online-circle/login');
+                }
+            }
         }, 10 * 1000);
 
         checkTimerRef.current = timer;
@@ -139,6 +178,14 @@ export default function Home() {
     const handleInvitationClick = () => {
         window.location.href = 'https://es4.eedept.kobe-u.ac.jp/online-circle/check-invitations';
     };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-orange-50 flex justify-center items-center">
+                <div className="text-2xl text-orange-600">読み込み中...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-orange-50 p-6">

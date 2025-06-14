@@ -9,8 +9,8 @@ export default function CreateGathering() {
     const [time, setTime] = useState('00:00');
     const [details, setDetails] = useState('');
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
-    
 
     useEffect(() => {
         fetchUserCircles();
@@ -19,6 +19,7 @@ export default function CreateGathering() {
     const fetchUserCircles = async () => {
         try {
             const token = localStorage.getItem('token');
+            console.log('Fetching user circles...');
             const response = await fetch('/online-circle/api/user-circles', {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -26,45 +27,115 @@ export default function CreateGathering() {
             });
             if (response.ok) {
                 const data = await response.json();
+                console.log('User circles fetched:', data.circles);
                 setCircles(data.circles);
             } else {
+                console.error('Failed to fetch circles:', response.status);
                 setError('サークル情報の取得に失敗しました');
             }
         } catch (error) {
+            console.error('Error fetching circles:', error);
             setError('サークル情報の取得中に問題が発生しました');
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('Form submission started');
+        
+        // デバッグ情報をログ出力
+        console.log('Form data:', {
+            selectedCircle,
+            theme,
+            date,
+            time,
+            details
+        });
+
         setError('');
+        setIsSubmitting(true);
+
+        // フォームの値をチェック
+        if (!selectedCircle) {
+            setError('サークルを選択してください');
+            setIsSubmitting(false);
+            return;
+        }
+
+        if (!theme.trim()) {
+            setError('テーマを入力してください');
+            setIsSubmitting(false);
+            return;
+        }
+
+        if (!date) {
+            setError('日付を選択してください');
+            setIsSubmitting(false);
+            return;
+        }
+
+        if (!time) {
+            setError('時間を選択してください');
+            setIsSubmitting(false);
+            return;
+        }
 
         try {
             const token = localStorage.getItem('token');
+            console.log('Sending request to API...');
+            
+            const requestBody = {
+                circleId: selectedCircle,
+                theme: theme.trim(),
+                datetime: `${date}T${time}`,
+                details: details.trim()
+            };
+            
+            console.log('Request body:', requestBody);
+
             const response = await fetch('/online-circle/api/gatherings', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    circleId: selectedCircle,
-                    theme,
-                    datetime: `${date}T${time}`,
-                    details
-                }),
+                body: JSON.stringify(requestBody),
             });
 
+            console.log('Response status:', response.status);
+            console.log('Response headers:', [...response.headers.entries()]);
+
             if (response.ok) {
+                const data = await response.json();
+                console.log('Success response:', data);
                 alert('寄合の作成が完了しました！\nメンバーに招待通知が送られます。');
                 router.push('/online-circle/home');
             } else {
-                const data = await response.json();
-                setError(data.message);
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
+                
+                try {
+                    const errorData = JSON.parse(errorText);
+                    setError(errorData.message || 'サーバーエラーが発生しました');
+                } catch (parseError) {
+                    console.error('Failed to parse error response:', parseError);
+                    setError(`サーバーエラー (${response.status}): ${errorText}`);
+                }
             }
         } catch (error) {
-            setError('寄合作成中に問題が発生しました');
+            console.error('Request failed:', error);
+            setError(`寄合作成中に問題が発生しました: ${error.message}`);
+        } finally {
+            setIsSubmitting(false);
         }
+    };
+
+    // ボタンクリックのデバッグ
+    const handleButtonClick = (e) => {
+        console.log('Button clicked');
+        console.log('Event:', e);
+        // フォームの送信を明示的に実行
+        e.target.form.requestSubmit();
     };
 
     return (
@@ -81,9 +152,20 @@ export default function CreateGathering() {
                     </p>
                 </div>
 
+                {/* デバッグ情報表示 */}
+                <div className="bg-yellow-50 border-2 border-yellow-200 p-4 rounded-2xl mb-6">
+                    <h3 className="text-lg font-bold mb-2">デバッグ情報:</h3>
+                    <p>サークル数: {circles.length}</p>
+                    <p>選択されたサークル: {selectedCircle}</p>
+                    <p>テーマ: {theme}</p>
+                    <p>日付: {date}</p>
+                    <p>時間: {time}</p>
+                    <p>送信中: {isSubmitting ? 'はい' : 'いいえ'}</p>
+                </div>
+
                 {/* メインフォーム */}
                 <div className="bg-white rounded-3xl shadow-lg p-8 border-2 border-orange-200">
-                    <form className="space-y-8" onSubmit={handleSubmit}>
+                    <form className="space-y-8" onSubmit={handleSubmit} id="gatheringForm">
                         {/* サークル選択 */}
                         <div className="bg-blue-50 p-6 rounded-2xl">
                             <label className="text-2xl font-bold text-gray-700 mb-4 block flex items-center">
@@ -95,7 +177,10 @@ export default function CreateGathering() {
                                 className="w-full p-4 text-2xl border-2 border-blue-200 rounded-xl
                                          focus:border-blue-400 focus:ring focus:ring-blue-200"
                                 value={selectedCircle}
-                                onChange={(e) => setSelectedCircle(e.target.value)}
+                                onChange={(e) => {
+                                    console.log('Circle selected:', e.target.value);
+                                    setSelectedCircle(e.target.value);
+                                }}
                             >
                                 <option value="">サークルを選んでください</option>
                                 {circles.map((circle) => (
@@ -116,7 +201,10 @@ export default function CreateGathering() {
                                 className="w-full p-4 text-2xl border-2 border-green-200 rounded-xl
                                          focus:border-green-400 focus:ring focus:ring-green-200"
                                 value={theme}
-                                onChange={(e) => setTheme(e.target.value)}
+                                onChange={(e) => {
+                                    console.log('Theme changed:', e.target.value);
+                                    setTheme(e.target.value);
+                                }}
                                 placeholder="例：お花見会、読書会、など"
                             />
                         </div>
@@ -137,7 +225,9 @@ export default function CreateGathering() {
                                         type="button"
                                         onClick={() => {
                                             const today = new Date();
-                                            setDate(today.toISOString().split('T')[0]);
+                                            const todayStr = today.toISOString().split('T')[0];
+                                            console.log('Today selected:', todayStr);
+                                            setDate(todayStr);
                                         }}
                                         className={`px-6 py-4 text-xl rounded-xl border-2 transition-colors duration-200 
                          ${date === new Date().toISOString().split('T')[0]
@@ -153,7 +243,9 @@ export default function CreateGathering() {
                                         onClick={() => {
                                             const tomorrow = new Date();
                                             tomorrow.setDate(tomorrow.getDate() + 1);
-                                            setDate(tomorrow.toISOString().split('T')[0]);
+                                            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                                            console.log('Tomorrow selected:', tomorrowStr);
+                                            setDate(tomorrowStr);
                                         }}
                                         className={`px-6 py-4 text-xl rounded-xl border-2 transition-colors duration-200 
                          ${date === new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]
@@ -169,7 +261,9 @@ export default function CreateGathering() {
                                         onClick={() => {
                                             const dayAfterTomorrow = new Date();
                                             dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-                                            setDate(dayAfterTomorrow.toISOString().split('T')[0]);
+                                            const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
+                                            console.log('Day after tomorrow selected:', dayAfterTomorrowStr);
+                                            setDate(dayAfterTomorrowStr);
                                         }}
                                         className={`px-6 py-4 text-xl rounded-xl border-2 transition-colors duration-200 
                          ${date === new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0]
@@ -184,7 +278,10 @@ export default function CreateGathering() {
                                         <input
                                             type="date"
                                             value={date}
-                                            onChange={(e) => setDate(e.target.value)}
+                                            onChange={(e) => {
+                                                console.log('Date input changed:', e.target.value);
+                                                setDate(e.target.value);
+                                            }}
                                             className="w-full p-4 text-xl border-2 border-purple-200 rounded-xl
                              focus:border-purple-400 focus:ring focus:ring-purple-200"
                                         />
@@ -207,7 +304,9 @@ export default function CreateGathering() {
                                             value={time.split(':')[0]}
                                             onChange={(e) => {
                                                 const [_, minutes] = time.split(':');
-                                                setTime(`${e.target.value}:${minutes}`);
+                                                const newTime = `${e.target.value}:${minutes}`;
+                                                console.log('Hour changed:', newTime);
+                                                setTime(newTime);
                                             }}
                                         >
                                             {Array.from({ length: 24 }, (_, i) => (
@@ -229,7 +328,9 @@ export default function CreateGathering() {
                                             value={time.split(':')[1]}
                                             onChange={(e) => {
                                                 const [hours, _] = time.split(':');
-                                                setTime(`${hours}:${e.target.value}`);
+                                                const newTime = `${hours}:${e.target.value}`;
+                                                console.log('Minute changed:', newTime);
+                                                setTime(newTime);
                                             }}
                                         >
                                             {Array.from({ length: 12 }, (_, i) => (
@@ -257,7 +358,10 @@ export default function CreateGathering() {
                                 className="w-full p-4 text-2xl border-2 border-orange-200 rounded-xl
                                          focus:border-orange-400 focus:ring focus:ring-orange-200"
                                 value={details}
-                                onChange={(e) => setDetails(e.target.value)}
+                                onChange={(e) => {
+                                    console.log('Details changed:', e.target.value);
+                                    setDetails(e.target.value);
+                                }}
                                 placeholder="参加者に伝えたい内容を書いてください"
                             ></textarea>
                         </div>
@@ -274,15 +378,32 @@ export default function CreateGathering() {
 
                         {/* ボタン */}
                         <div className="space-y-4 pt-4">
+                            {/* 送信ボタン（type="submit"） */}
                             <button
                                 type="submit"
-                                className="w-full p-4 bg-gradient-to-r from-green-500 to-green-600 
-                                         text-white text-2xl rounded-xl hover:from-green-600 
-                                         hover:to-green-700 transition-all duration-200 flex 
-                                         items-center justify-center shadow-lg"
+                                disabled={isSubmitting}
+                                className={`w-full p-4 text-white text-2xl rounded-xl transition-all duration-200 
+                                         flex items-center justify-center shadow-lg
+                                         ${isSubmitting 
+                                             ? 'bg-gray-400 cursor-not-allowed' 
+                                             : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                                         }`}
                             >
                                 <span className="text-3xl mr-2">✨</span>
-                                寄合を作成する
+                                {isSubmitting ? '作成中...' : '寄合を作成する'}
+                            </button>
+
+                            {/* 代替送信ボタン（onClick） */}
+                            <button
+                                type="button"
+                                onClick={handleButtonClick}
+                                disabled={isSubmitting}
+                                className="w-full p-4 bg-blue-500 text-white text-2xl rounded-xl 
+                                         hover:bg-blue-600 transition-all duration-200 flex 
+                                         items-center justify-center shadow-lg"
+                            >
+                                <span className="text-3xl mr-2">🔄</span>
+                                代替送信ボタン（デバッグ用）
                             </button>
 
                             <button
@@ -302,4 +423,3 @@ export default function CreateGathering() {
         </div>
     );
 }
-
